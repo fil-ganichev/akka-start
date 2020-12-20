@@ -1,0 +1,9 @@
+.idea
+*.iml
+!.gitignore
+*.lock
+*.log
+log/
+target/
+allure-results/
+.flattened*
