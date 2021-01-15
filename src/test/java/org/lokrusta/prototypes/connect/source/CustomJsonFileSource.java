@@ -3,6 +3,7 @@ package org.lokrusta.prototypes.connect.source;
 import org.lokrusta.prototypes.connect.api.ArgsWrapper;
 import org.lokrusta.prototypes.connect.api.CallInfo;
 import org.lokrusta.prototypes.connect.api.TestApiGenderPerson;
+import org.lokrusta.prototypes.connect.api.dto.ObjectApiCallArguments;
 import org.lokrusta.prototypes.connect.impl.ArgsWrapperImpl;
 import org.lokrusta.prototypes.connect.impl.JsonFileSource;
 import org.lokrusta.prototypes.connect.impl.common.ApiCallException;
@@ -31,7 +32,7 @@ public class CustomJsonFileSource<T> extends JsonFileSource<T> {
 
     private Method getMethod(ArgsWrapperImpl jsonArgsWrapper) {
         try {
-            ArgsWrapperImpl.ObjectApiCallArguments parameter = (ArgsWrapperImpl.ObjectApiCallArguments) jsonArgsWrapper.getApiCallArguments();
+            ObjectApiCallArguments parameter = (ObjectApiCallArguments) jsonArgsWrapper.getApiCallArguments();
             TestApiGenderPerson.Person person = (TestApiGenderPerson.Person) parameter.getValue();
             if (person.getGender() == TestApiGenderPerson.Gender.MALE) {
                 return TestApiGenderPerson.class.getMethod("getMaleFio", TestApiGenderPerson.Person.class);

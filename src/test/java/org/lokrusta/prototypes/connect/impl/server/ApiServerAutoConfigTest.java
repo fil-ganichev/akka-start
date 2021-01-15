@@ -1,8 +1,9 @@
-package org.lokrusta.prototypes.connect.impl;
+package org.lokrusta.prototypes.connect.impl.server;
 
 import org.junit.jupiter.api.Test;
 import org.lokrusta.prototypes.connect.api.*;
-import org.lokrusta.prototypes.connect.config.ApiServerTestAutoConfiguration;
+import org.lokrusta.prototypes.connect.config.server.ApiServerTestAutoConfiguration;
+import org.lokrusta.prototypes.connect.impl.ApiEngineImpl;
 import org.lokrusta.prototypes.connect.utils.CustomJsonFileSourceHelper;
 import org.lokrusta.prototypes.connect.utils.FileSourceHelper;
 import org.lokrusta.prototypes.connect.utils.JsonFileSourceHelper;
@@ -12,6 +13,8 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,9 +45,9 @@ class ApiServerAutoConfigTest {
 
     // Вызываем сервер явно, получаем результат
     @Test
-    void when_callApiServer_then_ok() throws ExecutionException, InterruptedException {
+    void when_callApiServer_then_ok() throws ExecutionException, InterruptedException, TimeoutException {
         TestApi testApi = apiEngine.findProxy(TestApi.class);
-        List<String> cities = testApi.split("Москва, Минск, Киев, Таллин, Рига, Кишинев").get();
+        List<String> cities = testApi.split("Москва, Минск, Киев, Таллин, Рига, Кишинев").get(500, TimeUnit.MILLISECONDS);
         assertThat(cities).containsExactly("Москва", "Минск", "Киев", "Таллин", "Рига", "Кишинев");
     }
 

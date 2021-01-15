@@ -34,7 +34,7 @@ public class TcpFileAsyncPowerServer extends TcpPointBase {
 
     void runApiServer() throws IOException, ExecutionException, InterruptedException {
         AsynchronousServerSocketChannel serverSocketChannel = AsynchronousServerSocketChannel.open();
-        serverSocketChannel.bind(new InetSocketAddress(8888));
+        serverSocketChannel.bind(new InetSocketAddress(8889));
         AcceptCompletionHandler acceptCompletionHandler = new AcceptCompletionHandler(serverSocketChannel);
         serverSocketChannel.accept(null, acceptCompletionHandler);
         System.in.read();

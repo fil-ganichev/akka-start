@@ -6,6 +6,8 @@ import akka.stream.javadsl.Flow;
 import lombok.Builder;
 import lombok.Data;
 import org.lokrusta.prototypes.connect.api.*;
+import org.lokrusta.prototypes.connect.api.dto.ArrayApiCallArguments;
+import org.lokrusta.prototypes.connect.api.dto.ObjectApiCallArguments;
 import org.lokrusta.prototypes.connect.impl.common.ApiCallException;
 import org.lokrusta.prototypes.connect.impl.common.CallPointNotFoundException;
 import org.lokrusta.prototypes.connect.impl.common.IllegalCallPointException;
@@ -15,16 +17,14 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import java.beans.PropertyDescriptor;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class ApiServerImpl extends StageBase implements ApiServer, ApplicationContextAware, InitializingBean {
+public class ApiServerImpl extends StageBase implements ApiServer, ProxiedStage, ApplicationContextAware, InitializingBean {
 
     private final Map<Class<?>, CallPoint> points;
     private final ApiCallProcessor apiCallProcessor;
@@ -89,25 +89,29 @@ public class ApiServerImpl extends StageBase implements ApiServer, ApplicationCo
             Class<T> apiClass = argsWrapper.getCallInfo().getApiClass();
             CallPoint<T> callPoint = points.get(apiClass);
             Method method = argsWrapper.getCallInfo().getApiMethod();
+            if (!isProxyCall && Modifier.isAbstract(method.getModifiers())) {
+                method = callPoint.getApiServerImpl().getClass().getMethod(method.getName(), method.getParameterTypes());
+            }
             Object bean = callPoint.getApiServerImpl();
             Class<?> parameterTypes[] = method.getParameterTypes();
             ApiCallArguments apiCallArguments = argsWrapper.getApiCallArguments();
             if (parameterTypes.length == 0) {
                 throw new IllegalCallPointException();
             } else if (parameterTypes.length == 1) {
-                if (apiCallArguments instanceof ArgsWrapperImpl.ObjectApiCallArguments) {
-                    Object result = method.invoke(bean, ((ArgsWrapperImpl.ObjectApiCallArguments) apiCallArguments).getValue());
+                if (apiCallArguments instanceof ObjectApiCallArguments) {
+                    Object result = method.invoke(bean, ((ObjectApiCallArguments) apiCallArguments).getValue());
                     return ArgsWrapperImpl.of(result).withCorrelationId(argsWrapper.getCorrelationId());
                 }
             }
             Object result;
-            if (apiCallArguments instanceof ArgsWrapperImpl.ArrayApiCallArguments) {
-                result = method.invoke(bean, ((ArgsWrapperImpl.ArrayApiCallArguments) apiCallArguments).getValues());
+            if (apiCallArguments instanceof ArrayApiCallArguments) {
+                result = method.invoke(bean, ((ArrayApiCallArguments) apiCallArguments).getValues());
             } else {
-                Object parameters = apiCallArguments instanceof ArgsWrapperImpl.ObjectApiCallArguments
-                        ? ((ArgsWrapperImpl.ObjectApiCallArguments) apiCallArguments).getValue()
+                Object parameters = apiCallArguments instanceof ObjectApiCallArguments
+                        ? ((ObjectApiCallArguments) apiCallArguments).getValue()
                         : apiCallArguments;
-                List args = prepareArgValues(method, parameters);
+                Method apiMethod = callPoint.getApi().getMethod(method.getName(), method.getParameterTypes());
+                List args = prepareArgValues(apiMethod, parameters);
                 result = method.invoke(bean, args.toArray(new Object[args.size()]));
             }
             return ArgsWrapperImpl.of(result).withCorrelationId(argsWrapper.getCorrelationId());
@@ -166,6 +170,7 @@ public class ApiServerImpl extends StageBase implements ApiServer, ApplicationCo
         this.applicationContext = applicationContext;
     }
 
+    @Override
     public <T> T getProxy(Class<T> clazz) {
         return (T) points.get(clazz).getApiImpl();
     }
@@ -317,7 +322,7 @@ public class ApiServerImpl extends StageBase implements ApiServer, ApplicationCo
         }
 
         private Object fromArgsWrapper(ArgsWrapper answer) {
-            ArgsWrapperImpl.ObjectApiCallArguments result = (ArgsWrapperImpl.ObjectApiCallArguments) answer.getApiCallArguments();
+            ObjectApiCallArguments result = (ObjectApiCallArguments) answer.getApiCallArguments();
             return result.getValue();
         }
 

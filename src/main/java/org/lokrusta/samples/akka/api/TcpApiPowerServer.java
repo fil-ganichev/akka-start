@@ -18,7 +18,7 @@ public class TcpApiPowerServer extends TcpPointBase {
     void runApiServer() {
         ActorSystem system = ActorSystem.create("QuickStart");
         final Source<Tcp.IncomingConnection, CompletionStage<Tcp.ServerBinding>> connections =
-                Tcp.get(system).bind("127.0.0.1", 8888);
+                Tcp.get(system).bind("127.0.0.1", 8889);
         connections
                 .to(
                         Sink.foreach(

@@ -1,4 +1,4 @@
-package org.lokrusta.prototypes.connect.config;
+package org.lokrusta.prototypes.connect.config.server;
 
 import org.lokrusta.prototypes.connect.api.*;
 import org.lokrusta.prototypes.connect.impl.ApiEngineFactory;

@@ -5,15 +5,11 @@
 
 2) Аналогичный вопрос с прочими библиотеками (например, micrometer) сходит в состав SpringBoot
 
-3) Проблема инициализации stageConnector и argsConverter сразу в конструкторе - mock-и не работают (лучше afterPropertiesSet)
-
 4) В orElseThrow генерировать свой Exception
 
 5) Реальные! разные примеры конвейеров с CustomApiServerArgsConverter
 
 6) Пример/инструкция удаленного сервера-клиента с TCP-транспортом в OpenShift
-
-7) Есть конвейер. При вызове Api произошел Exception. Мы его прокинем в CompletableFuture, но что делать с конвейером? Останавливаем или нет? Общий handler
 
 8) Пример/инструкция с источником Kafka, приемником БД
 
@@ -30,11 +26,7 @@
 
 14) ApiEngine сделать бином и в нее передавать AppilicationContext
 
-15) ApiEngineImpl должен находить ActorSystem (Один из бинов?)
-
 16) DependsOn слишком сложный в ApiServerTest. Требуется рефакторинг   
-
-17) Не делать бином ApiServerImpl. Слишком усложняет
 
 18) Разобраться с akka streams в кластере: какими средствами организовать кластер (akka cluster, openshift)
 
@@ -57,16 +49,36 @@
 
 27) Распараллеливание mapAsync() и map.async()
 
-28) ApiSource сделать InitializeBean и ApplicationContextAware
-
 29) Логирование каждого этапа в графе akka для debug
 
 30) ObjectMapper в ApiHelper должен подключаться как бин, настраиваемый
 
-31) ErrorListener в ApiEngine
+31) ErrorListener в ApiEngine (withErrorListener - метод интерфейса ErrorListener). Перехват Throwable вместо Exception.
 
 32) Тесты - в тестах на Exception добавить Listener и проверку, что он вызывается
 
 33) Тесты - тесты по каждой компоненте (ApiServer, ApiSource) в отдельный пакет
 
 34) Тесты - класс TestBase
+
+35) Рефакторинг передачи ApiCallProcessor в транспорт из ApiClient
+
+36) Логирование элементов потока с настройкой уровней
+
+38) Проблема логирования. Как включить log() для каждого элемента потока?
+
+39) Перед каждым разветвлением потока добавлять mapError. При установке errorListener в ApiEngine, передавать его всем элементам
+
+40) ArgsWrapperImpl.apiCallArguments используется и для аргументов вызова и для возврата значения. Очень непрозрачно получается
+
+41) Таймаут у CompletableFuture с результатом. Таймаут серверной обработки
+
+42) Unbind сокетов при закрытии TCP-бинов
+
+43) Использование ConcurrentHashMap в ApiCallProcessor сомнительно
+
+44) Провести самплирование и оптимизацию (особенно ApiServerImpl, где используется reflection)
+
+45) Сценарии тестовых примеров поменять на более реальные. Замена TestApi.split() и Car
+
+46) ApiHelper рефакторинг - вместо набора статических методов Singleton, по другому назвать?

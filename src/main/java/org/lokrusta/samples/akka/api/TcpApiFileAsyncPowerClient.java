@@ -52,7 +52,7 @@ public class TcpApiFileAsyncPowerClient extends TcpPointBase {
         Path path = Paths.get(FILE_NAME);
         startTimeMs = System.currentTimeMillis();
         client = AsynchronousSocketChannel.open();
-        InetSocketAddress hostAddress = new InetSocketAddress("localhost", 8888);
+        InetSocketAddress hostAddress = new InetSocketAddress("localhost", 8889);
         Future<Void> future = client.connect(hostAddress);
         future.get();
         reader = Files.newBufferedReader(path, Charset.forName("UTF-8"));

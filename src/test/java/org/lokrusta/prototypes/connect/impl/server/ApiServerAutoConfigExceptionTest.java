@@ -1,8 +1,9 @@
-package org.lokrusta.prototypes.connect.impl;
+package org.lokrusta.prototypes.connect.impl.server;
 
 import org.junit.jupiter.api.Test;
 import org.lokrusta.prototypes.connect.api.TestApi;
-import org.lokrusta.prototypes.connect.config.ApiServerTestAutoConfiguration;
+import org.lokrusta.prototypes.connect.config.server.ApiServerTestAutoConfiguration;
+import org.lokrusta.prototypes.connect.impl.ApiEngineImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;

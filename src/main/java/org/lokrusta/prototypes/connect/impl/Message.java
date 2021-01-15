@@ -16,7 +16,7 @@ public class Message {
     private String base64Json;
 
     @AllArgsConstructor
-    protected static enum MessageType {
+    public static enum MessageType {
 
         WELCOME(0),
         REQUEST(1);

@@ -1,6 +1,7 @@
 package org.lokrusta.prototypes.connect.impl;
 
 import org.lokrusta.prototypes.connect.api.ArgsWrapper;
+import org.lokrusta.prototypes.connect.api.dto.StringApiCallArguments;
 
 import java.nio.file.Path;
 import java.util.function.Function;
@@ -29,7 +30,7 @@ public class JsonFileSource<T> extends FileSource {
 
     protected Function<ArgsWrapper, ArgsWrapper> getArgsConverter() {
         return argsWrapper -> ArgsWrapperImpl.of(ApiHelper.fromString(
-                ((ArgsWrapperImpl.StringApiCallArguments) argsWrapper.getApiCallArguments()).getValue(),
+                ((StringApiCallArguments) argsWrapper.getApiCallArguments()).getValue(),
                 objectClass));
     }
 }

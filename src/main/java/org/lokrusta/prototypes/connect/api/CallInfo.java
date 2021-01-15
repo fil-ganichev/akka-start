@@ -1,5 +1,6 @@
 package org.lokrusta.prototypes.connect.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Data;
 

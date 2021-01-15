@@ -41,11 +41,11 @@ public class TcpApiFileClient extends TcpPointBase {
         final Source<String, NotUsed> lines =
                 akka.stream.alpakka.file.javadsl.FileTailSource
                         .createLines(fs.getPath(FILE_NAME), maxLineSize, pollingInterval, "\n", Charset.forName("utf8"))
-                        .log("error");
+                        .log("");
 
         final Flow<String, ByteString, NotUsed> apiSource = Flow.<String>create()
                 .map(nextString -> fromString(nextString, CustomMethodParameter.class))
-                .log("error")
+                .log("")
                 .map(parameter -> {
                     Pair<Message, CompletableFuture<Message>> response = apiProcessor.req(parameter);
                     response.getRight().thenApply(message -> {
@@ -55,10 +55,10 @@ public class TcpApiFileClient extends TcpPointBase {
                     });
                     return ByteString.fromString(this.toString(response.getLeft()));
                 })
-                .log("error");
+                .log("");
 
         final Flow<ByteString, ByteString, CompletionStage<Tcp.OutgoingConnection>> connection =
-                Tcp.get(system).outgoingConnection("127.0.0.1", 8888);
+                Tcp.get(system).outgoingConnection("127.0.0.1", 8889);
 
         final Flow<ByteString, ByteString, NotUsed> repl =
                 Flow.of(ByteString.class)

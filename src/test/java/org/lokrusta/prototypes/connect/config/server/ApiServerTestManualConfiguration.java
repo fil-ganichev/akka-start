@@ -1,10 +1,12 @@
-package org.lokrusta.prototypes.connect.config;
+package org.lokrusta.prototypes.connect.config.server;
 
 import org.lokrusta.prototypes.connect.api.*;
 import org.lokrusta.prototypes.connect.impl.ApiEngineImpl;
 import org.lokrusta.prototypes.connect.impl.ApiServerImpl;
 import org.lokrusta.prototypes.connect.impl.FileSource;
 import org.lokrusta.prototypes.connect.utils.FileSourceHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +21,8 @@ import static org.mockito.Mockito.spy;
 @Configuration
 @ComponentScan("org.lokrusta.prototypes.connect.api")
 public class ApiServerTestManualConfiguration {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Bean
     public ApiServerImpl apiServer() {
@@ -72,7 +76,10 @@ public class ApiServerTestManualConfiguration {
 
     @Bean
     public ApiEngine apiEngineTwoPhases(ApiServerImpl apiServerPhaseOne, ApiServerImpl apiServerPhaseTwo, ApiServerImpl sinkServer) {
-        return ApiEngineImpl.of(apiServerPhaseOne).connect(apiServerPhaseTwo).connect(sinkServer).run();
+        return ApiEngineImpl.of(apiServerPhaseOne)
+                .connect(apiServerPhaseTwo)
+                .connect(sinkServer)
+                .withErrorListener(e -> logger.error(e.toString(), e)).run();
     }
 
     @Bean

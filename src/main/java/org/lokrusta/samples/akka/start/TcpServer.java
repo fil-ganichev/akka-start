@@ -14,11 +14,11 @@ public class TcpServer {
         welcomeServer();
     }
 
-    //echo -n 'Line of text' | nc 127.0.0.1 8888
+    //echo -n 'Line of text' | nc 127.0.0.1 8889
     private static void simpleServer() {
         ActorSystem system = ActorSystem.create("QuickStart");
         final Source<Tcp.IncomingConnection, CompletionStage<Tcp.ServerBinding>> connections =
-                Tcp.get(system).bind("127.0.0.1", 8888);
+                Tcp.get(system).bind("127.0.0.1", 8889);
         connections.runForeach(
                 connection -> {
                     System.out.println("New connection from: " + connection.remoteAddress());
@@ -40,7 +40,7 @@ public class TcpServer {
     private static void welcomeServer() {
         ActorSystem system = ActorSystem.create("QuickStart");
         final Source<Tcp.IncomingConnection, CompletionStage<Tcp.ServerBinding>> connections =
-                Tcp.get(system).bind("127.0.0.1", 8888);
+                Tcp.get(system).bind("127.0.0.1", 8889);
         connections
                 .to(
                         Sink.foreach(

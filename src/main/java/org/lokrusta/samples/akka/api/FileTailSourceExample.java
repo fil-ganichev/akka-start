@@ -33,16 +33,16 @@ public class FileTailSourceExample {
     private final Source<String, NotUsed> lines =
             akka.stream.alpakka.file.javadsl.FileTailSource
                     .createLines(fs.getPath(FILE_NAME), maxLineSize, pollingInterval, "\n", Charset.forName("utf8"))
-                    .log("error");
+                    .log("");
 
     private final Flow<String, ByteString, NotUsed> linesSource = Flow.<String>create()
             .map(nextString -> fromString(nextString, CustomMethodParameter.class))
-            .log("error")
+            .log("")
             .map(parameter -> {
                 System.out.println(this.toString(parameter));
                 return ByteString.emptyByteString();
             })
-            .log("error");
+            .log("");
 
 
     public void runExample() {

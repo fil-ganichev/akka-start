@@ -1,14 +1,16 @@
-package org.lokrusta.prototypes.connect.impl;
+package org.lokrusta.prototypes.connect.impl.server;
 
 import org.junit.jupiter.api.Test;
 import org.lokrusta.prototypes.connect.api.*;
-import org.lokrusta.prototypes.connect.config.ApiServerTestManualConfiguration;
+import org.lokrusta.prototypes.connect.config.server.ApiServerTestManualConfiguration;
 import org.lokrusta.prototypes.connect.utils.FileSourceHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,16 +43,16 @@ class ApiServerManualConfigTest {
 
     // Вызываем сервер явно, получаем результат
     @Test
-    void when_callApiServer_then_ok() throws ExecutionException, InterruptedException {
-        List<String> cities = testApi.split("Москва, Минск, Киев, Таллин, Рига, Кишинев").get();
+    void when_callApiServer_then_ok() throws ExecutionException, InterruptedException, TimeoutException {
+        List<String> cities = testApi.split("Москва, Минск, Киев, Таллин, Рига, Кишинев").get(500, TimeUnit.MILLISECONDS);
         assertThat(cities).containsExactly("Москва", "Минск", "Киев", "Таллин", "Рига", "Кишинев");
     }
 
     // Вызываем сервер явно, получаем результат, далее еще один вызов
     @Test
-    void when_callApiServerAndNextOne_then_ok() throws ExecutionException, InterruptedException {
+    void when_callApiServerAndNextOne_then_ok() throws ExecutionException, InterruptedException, TimeoutException {
         testApiSinkServer.reset();
-        List<String> cities = testApiPhaseOne.split("Москва, Минск, Киев, Таллин, Рига, Кишинев").get();
+        List<String> cities = testApiPhaseOne.split("Москва, Минск, Киев, Таллин, Рига, Кишинев").get(500, TimeUnit.MILLISECONDS);
         Thread.sleep(100);
         testApiSinkServer.check(6);
     }

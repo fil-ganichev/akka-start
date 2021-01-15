@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 public class TcpFileClassicServer extends TcpPointBase {
 
     private static final int THREADS_AMOUNT = 8;
-    private final ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(THREADS_AMOUNT, THREADS_AMOUNT, 600, TimeUnit.SECONDS, new ArrayBlockingQueue<>(1), new SocketThreadFactory(new ServerSocket(8888)));
+    private final ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(THREADS_AMOUNT, THREADS_AMOUNT, 600, TimeUnit.SECONDS, new ArrayBlockingQueue<>(1), new SocketThreadFactory(new ServerSocket(8889)));
 
     public TcpFileClassicServer(ObjectMapper objectMapper) throws IOException {
         super(objectMapper);

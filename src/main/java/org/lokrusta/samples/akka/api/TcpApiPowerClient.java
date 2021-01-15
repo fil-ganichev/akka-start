@@ -34,7 +34,7 @@ public class TcpApiPowerClient extends TcpPointBase {
 
 
         final Flow<ByteString, ByteString, CompletionStage<Tcp.OutgoingConnection>> connection =
-                Tcp.get(system).outgoingConnection("127.0.0.1", 8888);
+                Tcp.get(system).outgoingConnection("127.0.0.1", 8889);
 
         final Flow<ByteString, ByteString, NotUsed> repl =
                 Flow.of(ByteString.class)

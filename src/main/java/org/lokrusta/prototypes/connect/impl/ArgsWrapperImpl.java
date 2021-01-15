@@ -1,12 +1,13 @@
 package org.lokrusta.prototypes.connect.impl;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import org.lokrusta.prototypes.connect.api.ApiCallArguments;
 import org.lokrusta.prototypes.connect.api.ArgsWrapper;
 import org.lokrusta.prototypes.connect.api.CallInfo;
+import org.lokrusta.prototypes.connect.api.dto.ArrayApiCallArguments;
+import org.lokrusta.prototypes.connect.api.dto.ObjectApiCallArguments;
+import org.lokrusta.prototypes.connect.api.dto.StringApiCallArguments;
 
 //todo убрать StringApiCallArguments
 @Data
@@ -19,7 +20,7 @@ public class ArgsWrapperImpl implements ArgsWrapper {
     private Exception exception;
 
     public static ArgsWrapperImpl of(String arg) {
-        return new ArgsWrapperImpl(new ArgsWrapperImpl.StringApiCallArguments(arg), null);
+        return new ArgsWrapperImpl(new StringApiCallArguments(arg), null);
     }
 
     public static ArgsWrapperImpl of(ApiCallArguments apiCallArguments) {
@@ -36,10 +37,6 @@ public class ArgsWrapperImpl implements ArgsWrapper {
 
     public static <T> ArgsWrapperImpl of(T[] value) {
         return new ArgsWrapperImpl(new ArrayApiCallArguments(value));
-    }
-
-    public static ArgsWrapper deserialize(String arg) {
-        return ApiHelper.deserialize(arg);
     }
 
     public ArgsWrapperImpl withCorrelationId(String correlationId) {
@@ -75,29 +72,4 @@ public class ArgsWrapperImpl implements ArgsWrapper {
         return correlationId;
     }
 
-    @Data
-    @AllArgsConstructor
-    @EqualsAndHashCode
-    public static class StringApiCallArguments extends ObjectApiCallArguments<String> {
-
-        String value;
-    }
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @EqualsAndHashCode
-    public static class ObjectApiCallArguments<T> implements ApiCallArguments {
-
-        T value;
-    }
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @EqualsAndHashCode
-    public static class ArrayApiCallArguments implements ApiCallArguments {
-
-        Object values[];
-    }
 }

@@ -112,7 +112,7 @@ public class TcpFileClassicClient extends TcpPointBase {
 
             public SocketThread(Runnable r) throws IOException {
                 super(r);
-                clientSocket = new Socket("localhost", 8888);
+                clientSocket = new Socket("localhost", 8889);
             }
 
             public Socket getClientSocket() {
