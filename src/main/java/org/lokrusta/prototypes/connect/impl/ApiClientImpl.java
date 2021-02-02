@@ -6,7 +6,6 @@ import akka.stream.javadsl.Flow;
 import lombok.Builder;
 import lombok.Data;
 import org.lokrusta.prototypes.connect.api.*;
-import org.springframework.beans.factory.InitializingBean;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -14,23 +13,19 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class ApiClientImpl extends StageBase implements ApiClient, ProxiedStage, InitializingBean {
+public class ApiClientImpl extends StageBase implements ApiClient, ProxiedStage {
 
-    private final Map<Class<?>, ApiClientImpl.CallPoint> points;
+    private final Map<Class<?>, CallPoint> points;
     private final ApiCallProcessor apiCallProcessor;
 
-    private Consumer<Exception> errorListener;
-
-
-    protected ApiClientImpl(ApiCallProcessor apiCallProcessor, Map<Class<?>, ApiClientImpl.CallPoint> points) {
+    protected ApiClientImpl(ApiCallProcessor apiCallProcessor, Map<Class<?>, CallPoint> points) {
         this.apiCallProcessor = apiCallProcessor;
         this.points = points;
     }
 
-    protected ApiClientImpl(Map<Class<?>, ApiClientImpl.CallPoint> points) {
+    protected ApiClientImpl(Map<Class<?>, CallPoint> points) {
         this(new ApiCallProcessor(), points);
     }
 
@@ -44,42 +39,19 @@ public class ApiClientImpl extends StageBase implements ApiClient, ProxiedStage,
                                 .build())));
     }
 
-    // Клиент соединяется c только ApiTransport и ApiTransport вызывает ApiCallProcessor.response()
+    @Override
     protected Flow<ArgsWrapper, ArgsWrapper, NotUsed> createConnector() {
-        return Flow.of(ArgsWrapper.class).log("").merge(apiCallProcessor.clientApiSource()).log("")
-                .map(this::next).log("")
-                .map(this::checkError).log("")
+        return Flow.of(ArgsWrapper.class).merge(apiCallProcessor.clientApiSource())
+                .map(this::next)
+                .map(this::checkError)
                 .mapError(new PFBuilder<Throwable, Throwable>()
                         .match(Exception.class, this::onError)
-                        .build()).log("");
-    }
-
-    protected Exception onError(Exception e) throws Exception {
-        if (errorListener != null) {
-            errorListener.accept(e);
-        }
-        return e;
-    }
-
-    public ApiClientImpl withErrorListener(Consumer<Exception> errorListener) {
-        this.errorListener = errorListener;
-        return this;
-    }
-
-    protected ArgsWrapper checkError(ArgsWrapper argsWrapper) throws Exception {
-        if (argsWrapper.getException() != null) {
-            throw argsWrapper.getException();
-        }
-        return argsWrapper;
-    }
-
-    @Override
-    public void init() {
+                        .build());
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        this.stageConnector = createConnector();
+        super.afterPropertiesSet();
         points.forEach((key, point) -> initCallPoint(point));
     }
 
@@ -88,15 +60,15 @@ public class ApiClientImpl extends StageBase implements ApiClient, ProxiedStage,
         return (T) points.get(clazz).getApiImpl();
     }
 
-    public ApiCallProcessor getApiCallProcessor() {
+    protected ApiCallProcessor getApiCallProcessor() {
         return apiCallProcessor;
     }
 
-    private <T> void initCallPoint(ApiClientImpl.CallPoint<T> point) {
+    private <T> void initCallPoint(CallPoint<T> point) {
         T apiProxy = (T) Proxy.newProxyInstance(
                 this.getClass().getClassLoader(),
                 new Class[]{point.getApi()},
-                new ApiClientImpl.DefaultApiProxy());
+                new DefaultApiProxy());
         point.setApiImpl(apiProxy);
     }
 

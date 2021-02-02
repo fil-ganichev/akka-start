@@ -9,8 +9,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.lokrusta.prototypes.connect.api.*;
 import org.lokrusta.prototypes.connect.api.dto.ObjectApiCallArguments;
-import org.lokrusta.prototypes.connect.impl.common.ApiCallSerializationException;
-import org.lokrusta.prototypes.connect.impl.common.ApiException;
+import org.lokrusta.prototypes.connect.impl.error.ApiCallSerializationException;
+import org.lokrusta.prototypes.connect.impl.error.ApiException;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;

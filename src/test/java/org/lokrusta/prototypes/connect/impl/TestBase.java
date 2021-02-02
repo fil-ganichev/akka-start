@@ -16,6 +16,10 @@ public class TestBase {
         return stageBase.getStageConnector();
     }
 
+    public ApiCallProcessor getApiCallProcessor(ApiClientImpl apiClient) {
+        return apiClient.getApiCallProcessor();
+    }
+
     public ApiClientImpl apiClient(List<Class<?>> apiInterfaces) throws Exception {
         ApiClientImpl apiClientImpl = new ApiClientImpl(apiInterfaces
                 .stream()

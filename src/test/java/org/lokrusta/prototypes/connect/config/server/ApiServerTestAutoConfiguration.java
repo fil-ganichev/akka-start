@@ -27,12 +27,12 @@ public class ApiServerTestAutoConfiguration {
 
     @Bean
     public ApiEngine apiEngine(ApiEngineFactory apiEngineFactory) {
-        return ApiEngineImpl.of(apiEngineFactory.apiServer(Map.of(TestApi.class, TestApiServer.class), true)).run();
+        return ApiEngineImpl.of(apiEngineFactory.apiProxiedServer(Map.of(TestApi.class, TestApiServer.class))).run();
     }
 
     @Bean
     public ApiEngine apiEngineTwoPhases(ApiEngineFactory apiEngineFactory) {
-        return ApiEngineImpl.of(apiEngineFactory.apiServer(Map.of(TestApiPhaseOne.class, TestApiPhaseOneServer.class), true))
+        return ApiEngineImpl.of(apiEngineFactory.apiProxiedServer(Map.of(TestApiPhaseOne.class, TestApiPhaseOneServer.class)))
                 .connect(apiEngineFactory.apiServer(Map.of(TestApiPhaseTwo.class, TestApiPhaseTwoServer.class)))
                 .connect(apiEngineFactory.apiServer(Map.of(TestApiSink.class, TestApiSinkServer.class))).run();
     }

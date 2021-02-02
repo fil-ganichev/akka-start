@@ -2,6 +2,7 @@ package org.lokrusta.prototypes.connect.config.server;
 
 import org.lokrusta.prototypes.connect.api.*;
 import org.lokrusta.prototypes.connect.impl.ApiEngineImpl;
+import org.lokrusta.prototypes.connect.impl.ApiProxiedServerImpl;
 import org.lokrusta.prototypes.connect.impl.ApiServerImpl;
 import org.lokrusta.prototypes.connect.impl.FileSource;
 import org.lokrusta.prototypes.connect.utils.FileSourceHelper;
@@ -10,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -25,32 +25,32 @@ public class ApiServerTestManualConfiguration {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Bean
-    public ApiServerImpl apiServer() {
-        return ApiServerImpl.of(Arrays.asList(TestApi.class), true);
+    public ApiProxiedServerImpl apiServer() {
+        return ApiProxiedServerImpl.of(Arrays.asList(TestApi.class));
     }
 
     @Bean
-    public ApiServerImpl apiServerPhaseOne() {
-        return ApiServerImpl.of(Arrays.asList(TestApiPhaseOne.class), true);
+    public ApiProxiedServerImpl apiServerPhaseOne() {
+        return ApiProxiedServerImpl.of(Arrays.asList(TestApiPhaseOne.class));
     }
 
     @Bean
     public ApiServerImpl apiServerPhaseTwo() {
-        return ApiServerImpl.of(Arrays.asList(TestApiPhaseTwo.class), false);
+        return ApiServerImpl.of(Arrays.asList(TestApiPhaseTwo.class));
     }
 
     @Bean
     public ApiServerImpl sinkServer() {
-        return ApiServerImpl.of(Arrays.asList(TestApiSink.class), false);
+        return ApiServerImpl.of(Arrays.asList(TestApiSink.class));
     }
 
     @Bean
-    public TestApi testApi(ApiServerImpl apiServer) {
+    public TestApi testApi(ProxiedStage apiServer) {
         return apiServer.getProxy(TestApi.class);
     }
 
     @Bean
-    public TestApiPhaseOne testApiPhaseOne(ApiServerImpl apiServerPhaseOne) {
+    public TestApiPhaseOne testApiPhaseOne(ProxiedStage apiServerPhaseOne) {
         return apiServerPhaseOne.getProxy(TestApiPhaseOne.class);
     }
 
@@ -70,12 +70,12 @@ public class ApiServerTestManualConfiguration {
     }
 
     @Bean
-    public ApiEngine apiEngine(ApiServerImpl apiServer) {
+    public ApiEngine apiEngine(ApiProxiedServerImpl apiServer) {
         return ApiEngineImpl.of(apiServer).run();
     }
 
     @Bean
-    public ApiEngine apiEngineTwoPhases(ApiServerImpl apiServerPhaseOne, ApiServerImpl apiServerPhaseTwo, ApiServerImpl sinkServer) {
+    public ApiEngine apiEngineTwoPhases(ApiProxiedServerImpl apiServerPhaseOne, ApiServerImpl apiServerPhaseTwo, ApiServerImpl sinkServer) {
         return ApiEngineImpl.of(apiServerPhaseOne)
                 .connect(apiServerPhaseTwo)
                 .connect(sinkServer)

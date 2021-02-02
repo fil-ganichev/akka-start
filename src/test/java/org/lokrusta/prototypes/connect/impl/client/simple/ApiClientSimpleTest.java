@@ -68,7 +68,7 @@ public class ApiClientSimpleTest extends TestBase {
         ApiClientImpl apiClientImpl = apiClient(Arrays.asList(TestApi.class));
         apiClientImpl.afterPropertiesSet();
         Flow<ArgsWrapper, ArgsWrapper, NotUsed> apiClientConnector = getConnector(apiClientImpl);
-        TcpClientTransportImpl tcpClientTransportImpl = tcpClientTransport(apiClientImpl.getApiCallProcessor(), "127.0.0.1", 8889);
+        TcpClientTransportImpl tcpClientTransportImpl = tcpClientTransport(getApiCallProcessor(apiClientImpl), "127.0.0.1", 8889);
         tcpClientTransportImpl.afterPropertiesSet();
         Flow<ArgsWrapper, ArgsWrapper, NotUsed> tcpClientTransportConnector = getConnector(tcpClientTransportImpl);
         Source.empty(ArgsWrapper.class)

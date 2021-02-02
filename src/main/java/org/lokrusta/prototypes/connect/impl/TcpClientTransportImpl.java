@@ -1,7 +1,6 @@
 package org.lokrusta.prototypes.connect.impl;
 
 import akka.NotUsed;
-import akka.japi.pf.PFBuilder;
 import akka.stream.javadsl.Flow;
 import akka.stream.javadsl.JsonFraming;
 import akka.stream.javadsl.Tcp;
@@ -12,11 +11,10 @@ import org.lokrusta.prototypes.connect.impl.context.ApiEngineContext;
 import org.lokrusta.prototypes.connect.impl.context.ApiEngineContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 import java.util.concurrent.CompletionStage;
 
-public class TcpClientTransportImpl extends StageBase implements ApiTransport, InitializingBean {
+public class TcpClientTransportImpl extends StageBase implements ApiTransport {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -24,12 +22,6 @@ public class TcpClientTransportImpl extends StageBase implements ApiTransport, I
     private final int port;
     private final ApiEngineContext apiEngineContext = ApiEngineContextProvider.getApiEngineContext();
     private ApiCallProcessor apiCallProcessor;
-
-    protected Flow<ArgsWrapper, ArgsWrapper, NotUsed> stageConnector;
-
-    protected Flow<ArgsWrapper, ArgsWrapper, NotUsed> getStageConnector() {
-        return stageConnector;
-    }
 
     protected TcpClientTransportImpl(ApiCallProcessor apiCallProcessor, String host, int port) {
         this.apiCallProcessor = apiCallProcessor;
@@ -46,40 +38,33 @@ public class TcpClientTransportImpl extends StageBase implements ApiTransport, I
         return new TcpClientTransportImpl(host, port);
     }
 
-    @Override
-    public void init() {
-    }
-
     protected Flow<ArgsWrapper, ArgsWrapper, NotUsed> createConnector() {
         Flow<ByteString, ByteString, CompletionStage<Tcp.OutgoingConnection>> connection =
                 Tcp.get(apiEngineContext.getActorSystem()).outgoingConnection(host, port);
 
         Flow<ByteString, ByteString, NotUsed> repl =
-                Flow.of(ByteString.class).log("")
-                        .via(JsonFraming.objectScanner(Integer.MAX_VALUE)).log("")
-                        .map(ByteString::utf8String).log("")
-                        .map(ApiHelper::messageFromString).log("")
+                Flow.of(ByteString.class)
+                        .via(JsonFraming.objectScanner(Integer.MAX_VALUE))
+                        .map(ByteString::utf8String)
+                        .map(ApiHelper::messageFromString)
+                        .log(logTitle("incoming message"))
                         .map(message -> {
                             if (message.getMessageType() == Message.MessageType.REQUEST) {
                                 ArgsWrapper argsWrapper = ApiHelper.parameterFromBase64String(message.getBase64Json());
                                 apiCallProcessor.response(argsWrapper);
                             }
                             return ByteString.emptyByteString();
-                        }).log("");
+                        });
 
-        return Flow.of(ArgsWrapper.class).log("")
-                .map(this::next).log("")
-                .map(ApiHelper::messageFromArgs).log("")
-                .map(ApiHelper::messageToString).log("")
-                .map(ByteString::fromString).log("")
-                .via(connection).log("")
-                .via(repl).log("")
-                .map(s -> (ArgsWrapper) (ArgsWrapperImpl.of((String) null))).log("");
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        this.stageConnector = createConnector();
+        return Flow.of(ArgsWrapper.class)
+                .map(this::next)
+                .map(ApiHelper::messageFromArgs)
+                .map(ApiHelper::messageToString)
+                .log(logTitle("outgoing message"))
+                .map(ByteString::fromString)
+                .via(connection)
+                .via(repl)
+                .map(s -> (ArgsWrapper) (ArgsWrapperImpl.of((String) null)));
     }
 
     protected TcpClientTransportImpl withApiCallProcessor(ApiCallProcessor apiCallProcessor) {

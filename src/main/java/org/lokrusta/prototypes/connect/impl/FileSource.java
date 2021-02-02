@@ -5,13 +5,12 @@ import akka.stream.alpakka.file.javadsl.FileTailSource;
 import akka.stream.javadsl.Flow;
 import akka.stream.javadsl.Source;
 import org.lokrusta.prototypes.connect.api.ArgsWrapper;
-import org.springframework.beans.factory.InitializingBean;
 
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.time.Duration;
 
-public class FileSource extends ApiSourceImpl<String> implements InitializingBean {
+public class FileSource extends ApiSourceImpl<String> {
 
     private final FileSourceProperties fileSourceProperties;
     private final Source<String, NotUsed> lines;
@@ -30,10 +29,6 @@ public class FileSource extends ApiSourceImpl<String> implements InitializingBea
     }
 
     @Override
-    public void init() {
-    }
-
-    @Override
     protected Source createSource() {
         Source<String, NotUsed> lines = FileTailSource.createLines(getFilePath(),
                 fileSourceProperties.getMaxLineSize(),
@@ -44,23 +39,20 @@ public class FileSource extends ApiSourceImpl<String> implements InitializingBea
     }
 
     @Override
-    protected Source getSource() {
+    protected Source<String, NotUsed> getSource() {
         return lines;
     }
 
-    @Override
-    protected Flow<ArgsWrapper, ArgsWrapper, NotUsed> createConnector(Source<String, NotUsed> source) {
-        return Flow.of(ArgsWrapper.class).merge(source.map(ArgsWrapperImpl::of)).map(this::next);
+    protected Flow<ArgsWrapper, ArgsWrapper, NotUsed> createConnector() {
+        return Flow.of(ArgsWrapper.class)
+                .merge(getSource().map(ArgsWrapperImpl::of))
+                .log(logTitle("value from source"))
+                .map(this::next);
     }
 
     private Path getFilePath() {
         return fileSourceProperties.getFilePath() == null
                 ? FileSystems.getDefault().getPath(fileSourceProperties.getFileName())
                 : fileSourceProperties.getFilePath();
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        this.stageConnector = createConnector(this.lines);
     }
 }

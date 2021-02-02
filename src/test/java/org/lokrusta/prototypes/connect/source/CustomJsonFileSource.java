@@ -6,7 +6,7 @@ import org.lokrusta.prototypes.connect.api.TestApiGenderPerson;
 import org.lokrusta.prototypes.connect.api.dto.ObjectApiCallArguments;
 import org.lokrusta.prototypes.connect.impl.ArgsWrapperImpl;
 import org.lokrusta.prototypes.connect.impl.JsonFileSource;
-import org.lokrusta.prototypes.connect.impl.common.ApiCallException;
+import org.lokrusta.prototypes.connect.impl.error.ApiCallException;
 
 import java.lang.reflect.Method;
 import java.nio.file.Path;

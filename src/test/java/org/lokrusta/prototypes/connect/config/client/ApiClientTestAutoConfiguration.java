@@ -5,6 +5,7 @@ import org.lokrusta.prototypes.connect.api.TestApi;
 import org.lokrusta.prototypes.connect.api.TestApiServer;
 import org.lokrusta.prototypes.connect.impl.ApiEngineFactory;
 import org.lokrusta.prototypes.connect.impl.ApiEngineImpl;
+import org.lokrusta.prototypes.connect.impl.TcpServerTransportImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -30,7 +31,7 @@ public class ApiClientTestAutoConfiguration {
 
     @Bean
     public ApiEngine apiEngineServer(ApiEngineFactory apiEngineFactory) {
-        return ApiEngineImpl.of(apiEngineFactory.tcpServerTransport("127.0.0.1", 8889)
+        return ApiEngineImpl.of((TcpServerTransportImpl) apiEngineFactory.tcpServerTransport("127.0.0.1", 8889)
                 .withErrorListener(e -> logger.error(e.toString(), e)))
                 .connect(apiEngineFactory.apiServer(Map.of(TestApi.class, TestApiServer.class)))
                 .withErrorListener(e -> logger.error(e.toString(), e))

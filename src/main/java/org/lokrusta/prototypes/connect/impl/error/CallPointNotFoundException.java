@@ -1,4 +1,4 @@
-package org.lokrusta.prototypes.connect.impl.common;
+package org.lokrusta.prototypes.connect.impl.error;
 
 public class CallPointNotFoundException extends ApiException {
 

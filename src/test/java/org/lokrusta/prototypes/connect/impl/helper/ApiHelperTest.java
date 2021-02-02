@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.Test;
 import org.lokrusta.prototypes.connect.api.ArgsWrapper;
 import org.lokrusta.prototypes.connect.api.CallInfo;
+import org.lokrusta.prototypes.connect.api.TestApi;
 import org.lokrusta.prototypes.connect.api.TestApiCars;
-import org.lokrusta.prototypes.connect.impl.ApiCallProcessor;
 import org.lokrusta.prototypes.connect.impl.ApiHelper;
 import org.lokrusta.prototypes.connect.impl.ArgsWrapperImpl;
 import org.lokrusta.prototypes.connect.impl.Message;
@@ -15,8 +15,6 @@ import org.lokrusta.prototypes.connect.impl.helper.dto.Driver;
 import org.lokrusta.prototypes.connect.impl.helper.dto.Model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.lokrusta.prototypes.connect.api.TestApi;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

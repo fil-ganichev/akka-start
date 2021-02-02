@@ -1,6 +1,6 @@
 package org.lokrusta.prototypes.connect.impl;
 
-import org.lokrusta.prototypes.connect.impl.common.ApiEngineException;
+import org.lokrusta.prototypes.connect.impl.error.ApiEngineException;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -24,24 +24,28 @@ public class ApiEngineFactory implements ApplicationContextAware {
         this.beanFactory = (DefaultListableBeanFactory) applicationContext.getAutowireCapableBeanFactory();
     }
 
-    public ApiServerImpl apiServer(Map<Class<?>, Class<?>> api, boolean isProxyCall) {
+    public ApiServerImpl apiServer(Map<Class<?>, Class<?>> api) {
         ApiServerImpl apiServerImpl = ApiServerImpl.of(api
                 .entrySet()
                 .stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> registerBean(entry.getValue()))), isProxyCall);
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> registerBean(entry.getValue()))));
         api.values().forEach(this::registerBean);
         registerApiServer(apiServerImpl);
-        if (isProxyCall) {
-            api.keySet().forEach(clazz -> {
-                Object proxyInstance = apiServerImpl.getProxy(clazz);
-                beanFactory.registerSingleton(generateBeanName(proxyInstance.getClass()), proxyInstance);
-            });
-        }
         return apiServerImpl;
     }
 
-    public ApiServerImpl apiServer(Map<Class<?>, Class<?>> api) {
-        return apiServer(api, false);
+    public ApiProxiedServerImpl apiProxiedServer(Map<Class<?>, Class<?>> api) {
+        ApiProxiedServerImpl apiProxiedServerImpl = ApiProxiedServerImpl.of(api
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> registerBean(entry.getValue()))));
+        api.values().forEach(this::registerBean);
+        registerApiServer(apiProxiedServerImpl);
+        api.keySet().forEach(clazz -> {
+            Object proxyInstance = apiProxiedServerImpl.getProxy(clazz);
+            beanFactory.registerSingleton(generateBeanName(proxyInstance.getClass()), proxyInstance);
+        });
+        return apiProxiedServerImpl;
     }
 
     public ApiSourceImpl apiSource(ApiSourceImpl apiSource) {
@@ -90,10 +94,10 @@ public class ApiEngineFactory implements ApplicationContextAware {
         return baseName;
     }
 
-    private void registerApiServer(ApiServerImpl apiServerImpl) {
+    private void registerApiServer(ApiServerBase apiServerBase) {
         try {
-            registerStageBean(apiServerImpl);
-            apiServerImpl.setApplicationContext(applicationContext);
+            registerStageBean(apiServerBase);
+            apiServerBase.setApplicationContext(applicationContext);
         } catch (Exception e) {
             throw new ApiEngineException(e);
         }
