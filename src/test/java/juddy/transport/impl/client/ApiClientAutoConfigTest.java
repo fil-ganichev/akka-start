@@ -2,7 +2,7 @@ package juddy.transport.impl.client;
 
 import juddy.transport.api.TestApi;
 import juddy.transport.config.client.ApiClientTestAutoConfiguration;
-import juddy.transport.impl.ApiEngineImpl;
+import juddy.transport.impl.engine.ApiEngineImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;

@@ -1,10 +1,12 @@
 package juddy.transport.config.server;
 
 import juddy.transport.api.*;
-import juddy.transport.impl.ApiEngineImpl;
-import juddy.transport.impl.ApiProxiedServerImpl;
-import juddy.transport.impl.ApiServerImpl;
-import juddy.transport.impl.FileSource;
+import juddy.transport.api.common.ProxiedStage;
+import juddy.transport.api.engine.ApiEngine;
+import juddy.transport.impl.engine.ApiEngineImpl;
+import juddy.transport.impl.server.ApiProxiedServerImpl;
+import juddy.transport.impl.server.ApiServerImpl;
+import juddy.transport.impl.source.FileSource;
 import juddy.transport.utils.FileSourceHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

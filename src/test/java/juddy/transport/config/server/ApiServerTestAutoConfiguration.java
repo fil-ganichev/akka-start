@@ -1,10 +1,11 @@
 package juddy.transport.config.server;
 
 import juddy.transport.api.*;
-import juddy.transport.impl.ApiEngineFactory;
-import juddy.transport.impl.ApiEngineImpl;
-import juddy.transport.impl.FileSource;
-import juddy.transport.impl.JsonFileSource;
+import juddy.transport.api.engine.ApiEngine;
+import juddy.transport.impl.engine.ApiEngineFactory;
+import juddy.transport.impl.engine.ApiEngineImpl;
+import juddy.transport.impl.source.FileSource;
+import juddy.transport.impl.source.JsonFileSource;
 import juddy.transport.source.CustomJsonFileSource;
 import juddy.transport.utils.CustomJsonFileSourceHelper;
 import juddy.transport.utils.FileSourceHelper;

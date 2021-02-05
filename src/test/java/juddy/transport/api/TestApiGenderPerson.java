@@ -1,5 +1,6 @@
 package juddy.transport.api;
 
+import juddy.transport.api.common.Api;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

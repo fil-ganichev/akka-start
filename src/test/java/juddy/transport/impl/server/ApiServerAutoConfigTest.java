@@ -2,12 +2,11 @@ package juddy.transport.impl.server;
 
 import juddy.transport.api.*;
 import juddy.transport.config.server.ApiServerTestAutoConfiguration;
-import juddy.transport.impl.ApiEngineImpl;
+import juddy.transport.impl.engine.ApiEngineImpl;
 import juddy.transport.utils.CustomJsonFileSourceHelper;
 import juddy.transport.utils.FileSourceHelper;
 import juddy.transport.utils.JsonFileSourceHelper;
 import org.junit.jupiter.api.Test;
-import juddy.transport.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 

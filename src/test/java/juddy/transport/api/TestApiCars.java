@@ -1,5 +1,6 @@
 package juddy.transport.api;
 
+import juddy.transport.api.common.Api;
 import juddy.transport.impl.helper.dto.Car;
 import juddy.transport.impl.helper.dto.Driver;
 

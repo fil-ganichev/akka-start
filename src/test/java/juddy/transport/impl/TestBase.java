@@ -1,39 +1,28 @@
 package juddy.transport.impl;
 
-import akka.NotUsed;
 import akka.stream.javadsl.Flow;
-import juddy.transport.api.ArgsWrapper;
+import juddy.transport.api.args.ArgsWrapper;
+import juddy.transport.impl.args.ArgsWrapperImpl;
+import juddy.transport.impl.client.ApiClientImpl;
+import juddy.transport.impl.common.ApiCallProcessor;
+import juddy.transport.impl.net.TcpClientTransportImpl;
+import juddy.transport.impl.net.TcpServerTransportImpl;
+import juddy.transport.impl.source.FileSource;
 
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class TestBase {
 
-    public Flow<ArgsWrapper, ArgsWrapper, NotUsed> getConnector(StageBase stageBase) {
-        return stageBase.getStageConnector();
-    }
-
-    public ApiCallProcessor getApiCallProcessor(ApiClientImpl apiClient) {
-        return apiClient.getApiCallProcessor();
-    }
-
     public ApiClientImpl apiClient(List<Class<?>> apiInterfaces) throws Exception {
-        ApiClientImpl apiClientImpl = new ApiClientImpl(apiInterfaces
-                .stream()
-                .collect(Collectors.toMap(clazz -> clazz,
-                        clazz -> ApiClientImpl.CallPoint.builder()
-                                .api((Class<Object>) clazz)
-                                .methods(Arrays.asList(clazz.getMethods()))
-                                .build())));
+        ApiClientImpl apiClientImpl = ApiClientImpl.of(apiInterfaces);
         apiClientImpl.afterPropertiesSet();
         return apiClientImpl;
     }
 
     public TcpClientTransportImpl tcpClientTransport(ApiCallProcessor apiCallProcessor, String host, int port) throws Exception {
-        TcpClientTransportImpl tcpClientTransport = new TcpClientTransportImpl(apiCallProcessor, host, port);
+        TcpClientTransportImpl tcpClientTransport = TcpClientTransportImpl.of(apiCallProcessor, host, port);
         tcpClientTransport.afterPropertiesSet();
         return tcpClientTransport;
     }

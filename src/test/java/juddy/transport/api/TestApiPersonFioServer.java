@@ -1,5 +1,7 @@
 package juddy.transport.api;
 
+import juddy.transport.api.common.ApiBean;
+
 @ApiBean(TestApiPersonFio.class)
 public class TestApiPersonFioServer implements TestApiPersonFio {
 

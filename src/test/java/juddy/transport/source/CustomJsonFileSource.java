@@ -1,12 +1,12 @@
 package juddy.transport.source;
 
 import juddy.transport.api.TestApiGenderPerson;
-import juddy.transport.impl.JsonFileSource;
+import juddy.transport.impl.source.JsonFileSource;
 import juddy.transport.impl.error.ApiCallException;
-import juddy.transport.api.ArgsWrapper;
-import juddy.transport.api.CallInfo;
+import juddy.transport.api.args.ArgsWrapper;
+import juddy.transport.api.args.CallInfo;
 import juddy.transport.api.dto.ObjectApiCallArguments;
-import juddy.transport.impl.ArgsWrapperImpl;
+import juddy.transport.impl.args.ArgsWrapperImpl;
 
 import java.lang.reflect.Method;
 import java.nio.file.Path;
@@ -18,7 +18,7 @@ public class CustomJsonFileSource<T> extends JsonFileSource<T> {
         super(filePath, objectClass);
     }
 
-    protected Function<ArgsWrapper, ArgsWrapper> getArgsConverter() {
+    public Function<ArgsWrapper, ArgsWrapper> getArgsConverter() {
         return argsWrapper -> {
             ArgsWrapperImpl jsonArgsWrapper = (ArgsWrapperImpl) super.getArgsConverter().apply(argsWrapper);
             CallInfo<TestApiGenderPerson> callInfo = CallInfo.<TestApiGenderPerson>builder()

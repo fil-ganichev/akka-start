@@ -1,5 +1,6 @@
 package juddy.transport.api;
 
+import juddy.transport.api.common.ApiBean;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;

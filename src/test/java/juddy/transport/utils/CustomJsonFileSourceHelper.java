@@ -1,6 +1,6 @@
 package juddy.transport.utils;
 
-import juddy.transport.impl.ApiHelper;
+import juddy.transport.impl.common.ApiHelper;
 import juddy.transport.source.CustomJsonFileSource;
 import lombok.Getter;
 

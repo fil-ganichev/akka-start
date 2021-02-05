@@ -2,10 +2,10 @@ package juddy.transport.config.client;
 
 import juddy.transport.api.TestApi;
 import juddy.transport.api.TestApiServer;
-import juddy.transport.impl.ApiEngineFactory;
-import juddy.transport.impl.ApiEngineImpl;
-import juddy.transport.api.ApiEngine;
-import juddy.transport.impl.TcpServerTransportImpl;
+import juddy.transport.impl.engine.ApiEngineFactory;
+import juddy.transport.impl.engine.ApiEngineImpl;
+import juddy.transport.api.engine.ApiEngine;
+import juddy.transport.impl.net.TcpServerTransportImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;

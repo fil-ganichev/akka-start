@@ -1,7 +1,7 @@
 package juddy.transport.utils;
 
-import juddy.transport.impl.ApiHelper;
-import juddy.transport.impl.JsonFileSource;
+import juddy.transport.impl.common.ApiHelper;
+import juddy.transport.impl.source.JsonFileSource;
 import lombok.Getter;
 
 import java.io.IOException;

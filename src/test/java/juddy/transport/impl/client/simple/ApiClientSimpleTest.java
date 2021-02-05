@@ -1,20 +1,18 @@
 package juddy.transport.impl.client.simple;
 
-import akka.NotUsed;
-import akka.stream.javadsl.Flow;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
-import juddy.transport.api.ApiCallArguments;
-import juddy.transport.api.ArgsWrapper;
 import juddy.transport.api.TestApi;
+import juddy.transport.api.args.ApiCallArguments;
+import juddy.transport.api.args.ArgsWrapper;
 import juddy.transport.api.dto.ArrayApiCallArguments;
 import juddy.transport.api.dto.ObjectApiCallArguments;
-import juddy.transport.impl.ApiClientImpl;
-import juddy.transport.impl.ArgsWrapperImpl;
-import juddy.transport.impl.TcpClientTransportImpl;
 import juddy.transport.impl.TestBase;
+import juddy.transport.impl.args.ArgsWrapperImpl;
+import juddy.transport.impl.client.ApiClientImpl;
 import juddy.transport.impl.context.ApiEngineContext;
 import juddy.transport.impl.context.ApiEngineContextProvider;
+import juddy.transport.impl.net.TcpClientTransportImpl;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -32,6 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ApiClientSimpleTest extends TestBase {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
+
     private final ApiEngineContext apiEngineContext = ApiEngineContextProvider.getApiEngineContext();
     private final String source = "Москва, Минск, Киев, Таллин, Рига, Кишинев";
 
@@ -52,9 +51,8 @@ public class ApiClientSimpleTest extends TestBase {
         List<Object> results = new ArrayList<>();
         ApiClientImpl apiClientImpl = apiClient(Arrays.asList(TestApi.class));
         apiClientImpl.afterPropertiesSet();
-        Flow<ArgsWrapper, ArgsWrapper, NotUsed> apiClientConnector = getConnector(apiClientImpl);
         Source.empty(ArgsWrapper.class)
-                .via(apiClientConnector)
+                .via(apiClientImpl.getStageConnector())
                 .runWith(Sink.foreach(arg -> results.add(arg.getApiCallArguments().getResult())), apiEngineContext.getActorSystem());
         TestApi testApi = apiClientImpl.getProxy(TestApi.class);
         testApi.split(source);
@@ -67,13 +65,11 @@ public class ApiClientSimpleTest extends TestBase {
     void when_apiCallApiClientAndTcpClientTransport_thenOk() throws Exception {
         ApiClientImpl apiClientImpl = apiClient(Arrays.asList(TestApi.class));
         apiClientImpl.afterPropertiesSet();
-        Flow<ArgsWrapper, ArgsWrapper, NotUsed> apiClientConnector = getConnector(apiClientImpl);
-        TcpClientTransportImpl tcpClientTransportImpl = tcpClientTransport(getApiCallProcessor(apiClientImpl), "127.0.0.1", 8889);
+        TcpClientTransportImpl tcpClientTransportImpl = tcpClientTransport(apiClientImpl.getApiCallProcessor(), "127.0.0.1", 8889);
         tcpClientTransportImpl.afterPropertiesSet();
-        Flow<ArgsWrapper, ArgsWrapper, NotUsed> tcpClientTransportConnector = getConnector(tcpClientTransportImpl);
         Source.empty(ArgsWrapper.class)
-                .via(apiClientConnector)
-                .via(tcpClientTransportConnector)
+                .via(apiClientImpl.getStageConnector())
+                .via(tcpClientTransportImpl.getStageConnector())
                 .run(apiEngineContext.getActorSystem());
         TestApi testApi = apiClientImpl.getProxy(TestApi.class);
         List<String> results = testApi.split(source).get(500, TimeUnit.MILLISECONDS);

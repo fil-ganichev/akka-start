@@ -75,7 +75,7 @@
 
 42) Unbind сокетов при закрытии TCP-бинов
 
-43) Использование ConcurrentHashMap в ApiCallProcessor сомнительно
+43) Использование ConcurrentHashMap в ApiCallProcessor сомнительно. Может переполниться. Не очищаются старые записи
 
 44) Провести самплирование и оптимизацию (особенно ApiServerImpl, где используется reflection)
 
@@ -86,3 +86,5 @@
 47) Оптимизировать поиск в findRealMethod: использование intern(), кэширование? Или DefaultApiProxy для каждого метода создаем, чтоб вообще не искать
 
 48) В ApiEngine.connect Проверки на некорректные соединения. Например, client->client, tcpServer не первый stage и проч..
+
+49) Убрать то что связано с akka в отдельный класс. Не выводить наружу Flow<ArgsWrapper, ArgsWrapper, NotUsed> stageConnector

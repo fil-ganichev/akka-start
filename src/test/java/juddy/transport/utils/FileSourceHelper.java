@@ -1,6 +1,6 @@
 package juddy.transport.utils;
 
-import juddy.transport.impl.FileSource;
+import juddy.transport.impl.source.FileSource;
 import lombok.Getter;
 
 import java.io.IOException;

@@ -1,5 +1,7 @@
 package juddy.transport.api;
 
+import juddy.transport.api.common.ApiBean;
+
 import java.util.List;
 
 @ApiBean(TestApiPhaseTwo.class)

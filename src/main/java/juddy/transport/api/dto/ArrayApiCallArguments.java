@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import juddy.transport.api.ApiCallArguments;
+import juddy.transport.api.args.ApiCallArguments;
 
 @Data
 @AllArgsConstructor

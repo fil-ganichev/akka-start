@@ -1,13 +1,13 @@
 package juddy.transport.impl.helper;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import juddy.transport.api.ArgsWrapper;
-import juddy.transport.api.CallInfo;
+import juddy.transport.api.args.ArgsWrapper;
+import juddy.transport.api.args.CallInfo;
 import juddy.transport.api.TestApi;
 import juddy.transport.api.TestApiCars;
-import juddy.transport.impl.ApiHelper;
-import juddy.transport.impl.ArgsWrapperImpl;
-import juddy.transport.impl.Message;
+import juddy.transport.impl.common.ApiHelper;
+import juddy.transport.impl.args.ArgsWrapperImpl;
+import juddy.transport.impl.args.Message;
 import juddy.transport.impl.helper.dto.Car;
 import juddy.transport.impl.helper.dto.Document;
 import juddy.transport.impl.helper.dto.Driver;
