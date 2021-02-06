@@ -18,8 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringJUnitConfig(ApiServerTestManualConfiguration.class)
 class ApiServerManualConfigTest {
 
-    // Реализовать разные примеры CustomApiServerArgsConverter с преобразованием как аргуметров вызова, так и вычислением вызываемого метода от входящего ArgsWrapper
-
     @Autowired
     private ApiEngine apiEngineFromSource;
     @Autowired

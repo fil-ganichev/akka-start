@@ -2,6 +2,7 @@ package juddy.transport.config.server;
 
 import juddy.transport.api.*;
 import juddy.transport.api.engine.ApiEngine;
+import juddy.transport.impl.config.StartConfiguration;
 import juddy.transport.impl.engine.ApiEngineFactory;
 import juddy.transport.impl.engine.ApiEngineImpl;
 import juddy.transport.impl.source.FileSource;
@@ -15,27 +16,29 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Map;
 
 @Configuration
+@Import(StartConfiguration.class)
 @ComponentScan("juddy.transport.api")
 public class ApiServerTestAutoConfiguration {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Bean
+    @Bean(initMethod = "run")
     public ApiEngine apiEngine(ApiEngineFactory apiEngineFactory) {
-        return ApiEngineImpl.of(apiEngineFactory.apiProxiedServer(Map.of(TestApi.class, TestApiServer.class))).run();
+        return ApiEngineImpl.of(apiEngineFactory.apiProxiedServer(Map.of(TestApi.class, TestApiServer.class)));
     }
 
-    @Bean
+    @Bean(initMethod = "run")
     public ApiEngine apiEngineTwoPhases(ApiEngineFactory apiEngineFactory) {
         return ApiEngineImpl.of(apiEngineFactory.apiProxiedServer(Map.of(TestApiPhaseOne.class, TestApiPhaseOneServer.class)))
                 .connect(apiEngineFactory.apiServer(Map.of(TestApiPhaseTwo.class, TestApiPhaseTwoServer.class)))
-                .connect(apiEngineFactory.apiServer(Map.of(TestApiSink.class, TestApiSinkServer.class))).run();
+                .connect(apiEngineFactory.apiServer(Map.of(TestApiSink.class, TestApiSinkServer.class)));
     }
 
     @Bean
@@ -72,11 +75,6 @@ public class ApiServerTestAutoConfiguration {
                 .connect(apiEngineFactory.apiServer(Map.of(TestApiGenderPerson.class, TestApiGenderPersonServer.class)))
                 .connect(apiEngineFactory.apiServer(Map.of(TestApiSink.class, TestApiSinkServer.class))
                         .withErrorListener(e -> logger.error(e.toString(), e)));
-    }
-
-    @Bean
-    public ApiEngineFactory apiEngineFactory() {
-        return new ApiEngineFactory();
     }
 
     @Bean

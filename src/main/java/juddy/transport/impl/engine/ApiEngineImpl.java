@@ -18,6 +18,7 @@ import juddy.transport.impl.net.TcpServerTransportImpl;
 import juddy.transport.impl.server.ApiServerBase;
 import juddy.transport.impl.server.ApiServerImpl;
 import juddy.transport.impl.source.ApiSourceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;
@@ -27,6 +28,9 @@ public class ApiEngineImpl implements ApiEngine {
     private final ArrayList<StageBase> stages = new ArrayList<>();
     private final ErrorProcessor errorProcessor = new ErrorProcessor();
     private Flow<ArgsWrapper, ArgsWrapper, NotUsed> lastFlow;
+
+    @Autowired
+    private ApiEngineContextProvider apiEngineContextProvider;
 
     @Override
     public ApiEngine run() {
@@ -39,7 +43,7 @@ public class ApiEngineImpl implements ApiEngine {
                     .mapError(new PFBuilder<Throwable, Throwable>()
                             .match(Exception.class, this::onError)
                             .build())
-                    .run(ApiEngineContextProvider.getApiEngineContext().getActorSystem());
+                    .run(apiEngineContextProvider.getApiEngineContext().getActorSystem());
         }
         return this;
     }

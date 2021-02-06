@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -24,6 +25,9 @@ public abstract class StageBase implements Stage, InitializingBean {
     @Getter
     @Setter
     private Function<ArgsWrapper, ArgsWrapper> argsConverter;
+    @Autowired
+    @Getter(AccessLevel.PROTECTED)
+    private ApiEngineContextProvider apiEngineContextProvider;
 
     protected StageBase() {
     }
@@ -75,7 +79,7 @@ public abstract class StageBase implements Stage, InitializingBean {
     }
 
     protected ApiEngineContext getApiEngineContext() {
-        return ApiEngineContextProvider.getApiEngineContext();
+        return apiEngineContextProvider.getApiEngineContext();
     }
 
     protected abstract Flow<ArgsWrapper, ArgsWrapper, NotUsed> createConnector();

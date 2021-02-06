@@ -1,6 +1,7 @@
 package juddy.transport.impl.engine;
 
 import juddy.transport.impl.client.ApiClientImpl;
+import juddy.transport.impl.common.StageBase;
 import juddy.transport.impl.error.ApiEngineException;
 import juddy.transport.impl.net.TcpClientTransportImpl;
 import juddy.transport.impl.net.TcpServerTransportImpl;
@@ -9,18 +10,15 @@ import juddy.transport.impl.server.ApiServerBase;
 import juddy.transport.impl.server.ApiServerImpl;
 import juddy.transport.impl.source.ApiSourceImpl;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Component
 public class ApiEngineFactory implements ApplicationContextAware {
 
     private ApplicationContext applicationContext;
@@ -112,9 +110,10 @@ public class ApiEngineFactory implements ApplicationContextAware {
         }
     }
 
-    private void registerStageBean(InitializingBean bean) {
+    private void registerStageBean(StageBase bean) {
         try {
             beanFactory.registerSingleton(generateBeanName(bean.getClass()), bean);
+            beanFactory.autowireBean(bean);
             bean.afterPropertiesSet();
         } catch (Exception e) {
             throw new ApiEngineException(e);
