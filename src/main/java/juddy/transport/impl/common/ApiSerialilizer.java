@@ -6,11 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import juddy.transport.api.args.ApiCallArguments;
 import juddy.transport.api.args.ArgsWrapper;
 import juddy.transport.api.args.CallInfo;
-import juddy.transport.api.common.Stage;
 import juddy.transport.api.dto.ObjectApiCallArguments;
-import juddy.transport.api.source.ApiSource;
 import juddy.transport.impl.args.ArgsWrapperImpl;
 import juddy.transport.impl.args.Message;
+import juddy.transport.impl.common.json.ObjectMapperUtils;
 import juddy.transport.impl.error.ApiCallSerializationException;
 import juddy.transport.impl.error.ApiException;
 import lombok.AllArgsConstructor;
@@ -24,32 +23,31 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ApiHelper {
+public class ApiSerialilizer {
 
-    private static final ObjectMapper objectMapper = createMapper();
+    private final ObjectMapper objectMapper;
     private static final Map<String, List<TypeReference>> apiTypes = new HashMap<>();
 
-    public static boolean isSource(Stage stage) {
-        return stage instanceof ApiSource;
+
+    public ApiSerialilizer(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
     }
 
-    public static String serialize(ArgsWrapper argsWrapper) {
+    public ApiSerialilizer() {
+        this(ObjectMapperUtils.createObjectMapper());
+    }
+
+    public String serializeArgs(ArgsWrapper argsWrapper) {
         try {
-            return new String(Base64.getEncoder().encode(objectMapper.writeValueAsBytes(ArgsWrapperWrapperImpl.of(argsWrapper))));
+            return new String(Base64.getEncoder().encode(objectMapper
+                    .writeValueAsBytes(ArgsWrapperWrapperImpl.of(argsWrapper))));
         } catch (Exception e) {
             throw new ApiCallSerializationException(e);
         }
     }
 
-    public static <T> T fromString(String source, Class<T> clazz) {
-        try {
-            return objectMapper.readValue(source, clazz);
-        } catch (Exception e) {
-            throw new ApiException(e);
-        }
-    }
 
-    public static String toString(Object source) {
+    public String toString(Object source) {
         try {
             return objectMapper.writeValueAsString(source);
         } catch (Exception e) {
@@ -57,7 +55,15 @@ public class ApiHelper {
         }
     }
 
-    public static String messageToStringDecoded(Message source) {
+    public <T> T fromString(String source, Class<T> clazz) {
+        try {
+            return objectMapper.readValue(source, clazz);
+        } catch (Exception e) {
+            throw new ApiException(e);
+        }
+    }
+
+    public String messageToStringDecoded(Message source) {
         Message copy = Message.builder()
                 .messageType(source.getMessageType())
                 .correlationId(source.getCorrelationId())
@@ -66,7 +72,7 @@ public class ApiHelper {
         return toString(copy);
     }
 
-    public static String messageToString(Message source) {
+    public String messageToString(Message source) {
         Message copy = Message.builder()
                 .messageType(source.getMessageType())
                 .correlationId(source.getCorrelationId())
@@ -75,41 +81,41 @@ public class ApiHelper {
         return toString(copy);
     }
 
-    public static Message messageFromString(String source) {
+    public Message messageFromString(String source) {
         return fromString(source, Message.class);
     }
 
-    public static ArgsWrapper parameterFromBase64String(String source) throws NoSuchMethodException, UnsupportedEncodingException {
+    public ArgsWrapper parameterFromBase64String(String source) throws NoSuchMethodException, UnsupportedEncodingException {
         ArgsWrapperWrapperImpl argsWrapperWrapper = fromString(new String(Base64.getDecoder().decode(source.getBytes()), "UTF-8"), ArgsWrapperWrapperImpl.class);
         ArgsWrapperImpl argsWrapper = ArgsWrapperWrapperImpl.to(argsWrapperWrapper);
         return convertComplexArguments(argsWrapper);
     }
 
-    public static Message messageFromArgs(ArgsWrapper args) {
+    public Message messageFromArgs(ArgsWrapper args) {
         Message message = Message.builder()
                 .messageType(Message.MessageType.REQUEST)
                 .correlationId(args.getCorrelationId())
-                .base64Json(serialize(args))
+                .base64Json(serializeArgs(args))
                 .build();
         return message;
     }
 
-    public static Message welcome() {
+    public Message welcome() {
         return Message.builder()
                 .messageType(Message.MessageType.WELCOME)
-                .base64Json(serialize(ArgsWrapperImpl.of("")))
+                .base64Json(serializeArgs(ArgsWrapperImpl.of("")))
                 .build();
     }
 
-    public static void registerApiTypes(String apiName, List<TypeReference> types) {
+    public void registerApiTypes(String apiName, List<TypeReference> types) {
         apiTypes.put(apiName, types);
     }
 
-    private static String apiName(Class apiClass, String methodName) {
+    private String apiName(Class apiClass, String methodName) {
         return apiClass.getName().concat(".").concat(methodName);
     }
 
-    private static ArgsWrapper convertComplexArguments(ArgsWrapperImpl argsWrapper) {
+    private ArgsWrapper convertComplexArguments(ArgsWrapperImpl argsWrapper) {
         if (!isResult(argsWrapper)) {
             String apiName = apiName(argsWrapper.getCallInfo().getApiClass(), argsWrapper.getCallInfo().getApiMethod().getName());
             List<TypeReference> types = apiTypes.get(apiName);
@@ -129,20 +135,14 @@ public class ApiHelper {
         return argsWrapper;
     }
 
-    private static Object convertValueOfComplexType(Object result, TypeReference typeReference) {
+    private Object convertValueOfComplexType(Object result, TypeReference type) {
         if (result == null) {
             return null;
         }
-        return objectMapper.convertValue(result, typeReference);
+        return objectMapper.convertValue(result, type);
     }
 
-
-    private static ObjectMapper createMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper;
-    }
-
-    private static boolean isResult(ArgsWrapperImpl argsWrapper) {
+    private boolean isResult(ArgsWrapperImpl argsWrapper) {
         return argsWrapper.getCallInfo() == null;
     }
 

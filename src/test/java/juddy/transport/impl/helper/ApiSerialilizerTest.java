@@ -1,13 +1,13 @@
 package juddy.transport.impl.helper;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import juddy.transport.api.args.ArgsWrapper;
-import juddy.transport.api.args.CallInfo;
 import juddy.transport.api.TestApi;
 import juddy.transport.api.TestApiCars;
-import juddy.transport.impl.common.ApiHelper;
+import juddy.transport.api.args.ArgsWrapper;
+import juddy.transport.api.args.CallInfo;
 import juddy.transport.impl.args.ArgsWrapperImpl;
 import juddy.transport.impl.args.Message;
+import juddy.transport.impl.common.ApiSerialilizer;
 import juddy.transport.impl.helper.dto.Car;
 import juddy.transport.impl.helper.dto.Document;
 import juddy.transport.impl.helper.dto.Driver;
@@ -28,36 +28,39 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ApiHelperTest {
+public class ApiSerialilizerTest {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final ApiSerialilizer apiSerialilizer = new ApiSerialilizer();
 
     @Test
     void when_serializeArgsWrapper_then_ok() throws NoSuchMethodException, UnsupportedEncodingException {
         ArgsWrapperImpl argsWrapper = argsWrapperSimple(new Object[]{"Москва", "Минск", "Киев", "Таллин", "Рига", "Кишинев"});
-        String serialized = ApiHelper.serialize(argsWrapper);
-        ArgsWrapper fromSerialized = ApiHelper.parameterFromBase64String(serialized);
+        String serialized = apiSerialilizer.serializeArgs(argsWrapper);
+        ArgsWrapper fromSerialized = apiSerialilizer.parameterFromBase64String(serialized);
         assertThat(fromSerialized).isEqualTo(argsWrapper);
     }
 
     @Test
     void when_resultWithObjectAsArray_then_ok() throws IOException, URISyntaxException, NoSuchMethodException {
         String messageStr = getMessageJson("01");
-        Message message = ApiHelper.messageFromString(messageStr);
-        ArgsWrapper argsWrapper = ApiHelper.parameterFromBase64String(message.getBase64Json());
+        Message message = apiSerialilizer.messageFromString(messageStr);
+        ArgsWrapper argsWrapper = apiSerialilizer.parameterFromBase64String(message.getBase64Json());
         assertThat((List) argsWrapper.getApiCallArguments().getResult())
                 .containsExactly("Москва", "Минск", "Киев", "Таллин", "Рига", "Кишинев");
     }
 
     @Test
     void when_serializeArgsWrapperWithArrayOfObjects_then_ok() throws NoSuchMethodException, UnsupportedEncodingException {
-        ApiHelper.registerApiTypes("juddy.transport.api.TestApiCars.registerCar",
-                Arrays.asList(new TypeReference<Car>() {
-                }, new TypeReference<List<Driver>>() {
-                }));
+        apiSerialilizer.registerApiTypes("juddy.transport.api.TestApiCars.registerCar",
+                Arrays.asList(
+                        new TypeReference<Car>() {
+                        },
+                        new TypeReference<List<Driver>>() {
+                        }));
         ArgsWrapperImpl argsWrapper = argsWrapperComplexType(arrayOfObjects());
-        String serialized = ApiHelper.serialize(argsWrapper);
-        ArgsWrapper fromSerialized = ApiHelper.parameterFromBase64String(serialized);
+        String serialized = apiSerialilizer.serializeArgs(argsWrapper);
+        ArgsWrapper fromSerialized = apiSerialilizer.parameterFromBase64String(serialized);
         assertThat(fromSerialized).isEqualTo(argsWrapper);
     }
 

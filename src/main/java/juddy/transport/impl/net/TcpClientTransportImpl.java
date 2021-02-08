@@ -11,12 +11,11 @@ import juddy.transport.api.net.ApiTransport;
 import juddy.transport.impl.args.ArgsWrapperImpl;
 import juddy.transport.impl.args.Message;
 import juddy.transport.impl.common.ApiCallProcessor;
-import juddy.transport.impl.common.ApiHelper;
+import juddy.transport.impl.common.ApiSerialilizer;
 import juddy.transport.impl.common.StageBase;
-import juddy.transport.impl.context.ApiEngineContext;
-import juddy.transport.impl.context.ApiEngineContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.CompletionStage;
 
@@ -27,6 +26,8 @@ public class TcpClientTransportImpl extends StageBase implements ApiTransport {
     private final String host;
     private final int port;
     private ApiCallProcessor apiCallProcessor;
+    @Autowired
+    private ApiSerialilizer apiSerialilizer;
 
     protected TcpClientTransportImpl(ApiCallProcessor apiCallProcessor, String host, int port) {
         this.apiCallProcessor = apiCallProcessor;
@@ -55,11 +56,11 @@ public class TcpClientTransportImpl extends StageBase implements ApiTransport {
                 Flow.of(ByteString.class)
                         .via(JsonFraming.objectScanner(Integer.MAX_VALUE))
                         .map(ByteString::utf8String)
-                        .map(ApiHelper::messageFromString)
+                        .map(apiSerialilizer::messageFromString)
                         .log(logTitle("incoming message"))
                         .map(message -> {
                             if (message.getMessageType() == Message.MessageType.REQUEST) {
-                                ArgsWrapper argsWrapper = ApiHelper.parameterFromBase64String(message.getBase64Json());
+                                ArgsWrapper argsWrapper = apiSerialilizer.parameterFromBase64String(message.getBase64Json());
                                 apiCallProcessor.response(argsWrapper);
                             }
                             return ByteString.emptyByteString();
@@ -67,8 +68,8 @@ public class TcpClientTransportImpl extends StageBase implements ApiTransport {
 
         return Flow.of(ArgsWrapper.class)
                 .map(this::next)
-                .map(ApiHelper::messageFromArgs)
-                .map(ApiHelper::messageToString)
+                .map(apiSerialilizer::messageFromArgs)
+                .map(apiSerialilizer::messageToString)
                 .log(logTitle("outgoing message"))
                 .map(ByteString::fromString)
                 .via(connection)

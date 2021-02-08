@@ -8,15 +8,14 @@ import akka.stream.javadsl.JsonFraming;
 import akka.stream.javadsl.Source;
 import akka.stream.javadsl.Tcp;
 import akka.util.ByteString;
-import juddy.transport.impl.common.ApiHelper;
+import juddy.transport.impl.common.ApiSerialilizer;
 import juddy.transport.impl.args.Message;
 import juddy.transport.impl.common.StageBase;
-import juddy.transport.impl.context.ApiEngineContext;
-import juddy.transport.impl.context.ApiEngineContextProvider;
 import juddy.transport.api.net.ApiTransport;
 import juddy.transport.api.args.ArgsWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.CompletionStage;
 
@@ -26,6 +25,8 @@ public class TcpServerTransportImpl extends StageBase implements ApiTransport {
 
     private final String host;
     private final int port;
+    @Autowired
+    private ApiSerialilizer apiSerialilizer;
 
     private TcpServerTransportImpl(String host, int port) {
         this.host = host;
@@ -44,21 +45,21 @@ public class TcpServerTransportImpl extends StageBase implements ApiTransport {
         ActorSystem actorSystem = getApiEngineContext().getActorSystem();
         Source<Tcp.IncomingConnection, CompletionStage<Tcp.ServerBinding>> connections =
                 Tcp.get(actorSystem).bind(host, port);
-        Message welcomeMsg = ApiHelper.welcome();
+        Message welcomeMsg = apiSerialilizer.welcome();
         Source<Message, NotUsed> welcome = Source.single(welcomeMsg);
 
         Flow<ByteString, ByteString, NotUsed> serverLogic = Flow.of(ByteString.class)
                 .via(JsonFraming.objectScanner(Integer.MAX_VALUE))
                 .map(ByteString::utf8String)
-                .map(ApiHelper::messageFromString)
+                .map(apiSerialilizer::messageFromString)
                 .log(logTitle("incoming message"))
                 .map(Message::getBase64Json)
-                .map(ApiHelper::parameterFromBase64String)
+                .map(apiSerialilizer::parameterFromBase64String)
                 .via(graphProcessor)
                 .map(this::checkError)
-                .map(ApiHelper::messageFromArgs)
+                .map(apiSerialilizer::messageFromArgs)
                 .merge(welcome)
-                .map(ApiHelper::messageToString)
+                .map(apiSerialilizer::messageToString)
                 .log(logTitle("outgoing message"))
                 .map(ByteString::fromString)
                 .mapError(new PFBuilder<Throwable, Throwable>()

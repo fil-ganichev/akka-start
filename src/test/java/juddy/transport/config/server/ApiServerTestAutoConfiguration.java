@@ -2,6 +2,7 @@ package juddy.transport.config.server;
 
 import juddy.transport.api.*;
 import juddy.transport.api.engine.ApiEngine;
+import juddy.transport.impl.common.ApiSerialilizer;
 import juddy.transport.impl.config.StartConfiguration;
 import juddy.transport.impl.engine.ApiEngineFactory;
 import juddy.transport.impl.engine.ApiEngineImpl;
@@ -88,8 +89,8 @@ public class ApiServerTestAutoConfiguration {
     }
 
     @Bean
-    public JsonFileSourceHelper<TestApiPerson.Person> jsonFileSourceHelper() throws IOException, URISyntaxException {
-        return new JsonFileSourceHelper(TestApiPerson.Person.class);
+    public JsonFileSourceHelper<TestApiPerson.Person> jsonFileSourceHelper(ApiSerialilizer apiSerialilizer) throws IOException, URISyntaxException {
+        return new JsonFileSourceHelper(TestApiPerson.Person.class, apiSerialilizer);
     }
 
     @Bean
@@ -98,8 +99,8 @@ public class ApiServerTestAutoConfiguration {
     }
 
     @Bean
-    public CustomJsonFileSourceHelper<TestApiGenderPerson.Person> customJsonFileSourceHelper() throws IOException, URISyntaxException {
-        return new CustomJsonFileSourceHelper(TestApiGenderPerson.Person.class);
+    public CustomJsonFileSourceHelper<TestApiGenderPerson.Person> customJsonFileSourceHelper(ApiSerialilizer apiSerialilizer) throws IOException, URISyntaxException {
+        return new CustomJsonFileSourceHelper(TestApiGenderPerson.Person.class, apiSerialilizer);
     }
 
     @Bean

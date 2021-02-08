@@ -1,6 +1,6 @@
 package juddy.transport.utils;
 
-import juddy.transport.impl.common.ApiHelper;
+import juddy.transport.impl.common.ApiSerialilizer;
 import juddy.transport.source.CustomJsonFileSource;
 import lombok.Getter;
 
@@ -18,11 +18,11 @@ public class CustomJsonFileSourceHelper<T> {
     private final CustomJsonFileSource jsonFileSource;
     private final List<T> values;
 
-    public CustomJsonFileSourceHelper(Class<T> clazz) throws IOException, URISyntaxException {
+    public CustomJsonFileSourceHelper(Class<T> clazz, ApiSerialilizer apiSerialilizer) throws IOException, URISyntaxException {
         Path testFile = Paths.get(ClassLoader.getSystemResource("person-gender-source.json").toURI());
         values = Files.readAllLines(testFile)
                 .stream()
-                .map(s -> ApiHelper.fromString(s, clazz))
+                .map(s -> apiSerialilizer.fromString(s, clazz))
                 .collect(Collectors.toList());
         jsonFileSource = new CustomJsonFileSource(testFile, clazz);
     }

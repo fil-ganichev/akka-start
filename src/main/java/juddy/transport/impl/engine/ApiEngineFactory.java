@@ -56,7 +56,7 @@ public class ApiEngineFactory implements ApplicationContextAware {
     }
 
     public ApiSourceImpl apiSource(ApiSourceImpl apiSource) {
-        beanFactory.registerSingleton(generateBeanName(apiSource.getClass()), apiSource);
+        registerStageBean(apiSource);
         return apiSource;
     }
 
