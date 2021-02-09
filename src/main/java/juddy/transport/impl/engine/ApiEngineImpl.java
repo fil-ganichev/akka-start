@@ -5,9 +5,9 @@ import akka.japi.pf.PFBuilder;
 import akka.stream.javadsl.Flow;
 import akka.stream.javadsl.Source;
 import juddy.transport.api.args.ArgsWrapper;
+import juddy.transport.api.client.ApiClient;
 import juddy.transport.api.common.ProxiedStage;
 import juddy.transport.api.engine.ApiEngine;
-import juddy.transport.impl.client.ApiClientImpl;
 import juddy.transport.impl.common.ApiCallProcessor;
 import juddy.transport.impl.common.StageBase;
 import juddy.transport.impl.context.ApiEngineContextProvider;
@@ -15,9 +15,7 @@ import juddy.transport.impl.error.ApiEngineException;
 import juddy.transport.impl.error.ErrorProcessor;
 import juddy.transport.impl.net.TcpClientTransportImpl;
 import juddy.transport.impl.net.TcpServerTransportImpl;
-import juddy.transport.impl.server.ApiServerBase;
 import juddy.transport.impl.server.ApiServerImpl;
-import juddy.transport.impl.source.ApiSourceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -31,6 +29,11 @@ public class ApiEngineImpl implements ApiEngine {
 
     @Autowired
     private ApiEngineContextProvider apiEngineContextProvider;
+
+    private ApiEngineImpl(StageBase stageBase) {
+        stages.add(stageBase);
+        lastFlow = stageBase.getStageConnector();
+    }
 
     @Override
     public ApiEngine run() {
@@ -48,23 +51,8 @@ public class ApiEngineImpl implements ApiEngine {
         return this;
     }
 
-    public static ApiEngineImpl of(ApiSourceImpl source) {
-        ApiEngineImpl apiEngine = new ApiEngineImpl(source);
-        return apiEngine;
-    }
-
-    public static ApiEngineImpl of(ApiClientImpl client) {
-        ApiEngineImpl apiEngine = new ApiEngineImpl(client);
-        return apiEngine;
-    }
-
-    public static ApiEngineImpl of(ApiServerBase server) {
-        ApiEngineImpl apiEngine = new ApiEngineImpl(server);
-        return apiEngine;
-    }
-
-    public static ApiEngineImpl of(TcpServerTransportImpl tcpServer) {
-        ApiEngineImpl apiEngine = new ApiEngineImpl(tcpServer);
+    public static ApiEngineImpl of(StageBase stageBase) {
+        ApiEngineImpl apiEngine = new ApiEngineImpl(stageBase);
         return apiEngine;
     }
 
@@ -76,7 +64,7 @@ public class ApiEngineImpl implements ApiEngine {
         throw new ApiEngineException("ApiEngine start point is not ProxiedStage");
     }
 
-    public Object getBean(Class<?> clazz) {
+    public Object findServerBean(Class<?> clazz) {
         for (int i = 0; i < stages.size(); i++) {
             if (stages.get(i) instanceof ApiServerImpl) {
                 Object bean = ((ApiServerImpl) stages.get(i)).getBean(clazz);
@@ -88,53 +76,21 @@ public class ApiEngineImpl implements ApiEngine {
         return null;
     }
 
-    private ApiEngineImpl(ApiSourceImpl source) {
-        stages.add(source);
-        lastFlow = source.getStageConnector();
+    public ApiEngineImpl connect(StageBase stageBase) {
+        return connectStage(stageBase);
     }
 
-    private ApiEngineImpl(ApiServerBase server) {
-        stages.add(server);
-        lastFlow = server.getStageConnector();
+    public ApiEngineImpl connect(TcpServerTransportImpl tcpServerTransport) {
+        throw new ApiEngineException();
     }
 
-    private ApiEngineImpl(ApiClientImpl client) {
-        stages.add(client);
-        lastFlow = client.getStageConnector();
-    }
-
-    private ApiEngineImpl(TcpServerTransportImpl tcpServer) {
-        stages.add(tcpServer);
-        lastFlow = tcpServer.getStageConnector();
-    }
-
-    public ApiEngineImpl connect(StageBase stage) {
-        if (stage instanceof TcpServerTransportImpl) {
+    public ApiEngineImpl connect(TcpClientTransportImpl tcpClientTransport) {
+        ApiCallProcessor apiCallProcessor = findClientApiCallProcessor();
+        if (apiCallProcessor == null) {
             throw new ApiEngineException();
         }
-        if (stage instanceof TcpClientTransportImpl) {
-            ApiCallProcessor apiCallProcessor = findClientApiCallProcessor();
-            if (apiCallProcessor == null) {
-                throw new ApiEngineException();
-            }
-            ((TcpClientTransportImpl) stage).withApiCallProcessor(apiCallProcessor);
-        }
-        lastFlow = lastFlow.via(stage.getStageConnector());
-        stages.add(stage);
-        return this;
-    }
-
-    private ApiCallProcessor findClientApiCallProcessor() {
-        for (int i = stages.size() - 1; i >= 0; i++) {
-            if (stages.get(i) instanceof ApiClientImpl) {
-                return ((ApiClientImpl) stages.get(i)).getApiCallProcessor();
-            }
-        }
-        return null;
-    }
-
-    private boolean isFromServer() {
-        return stages.get(0) instanceof TcpServerTransportImpl;
+        tcpClientTransport.withApiCallProcessor(apiCallProcessor);
+        return connectStage(tcpClientTransport);
     }
 
     protected Exception onError(Exception e) throws Exception {
@@ -148,5 +104,24 @@ public class ApiEngineImpl implements ApiEngine {
 
     protected ArgsWrapper checkError(ArgsWrapper argsWrapper) throws Exception {
         return errorProcessor.checkError(argsWrapper);
+    }
+
+    private ApiCallProcessor findClientApiCallProcessor() {
+        for (int i = stages.size() - 1; i >= 0; i++) {
+            if (stages.get(i) instanceof ApiClient) {
+                return ((ApiClient) stages.get(i)).getApiCallProcessor();
+            }
+        }
+        return null;
+    }
+
+    private boolean isFromServer() {
+        return stages.get(0) instanceof TcpServerTransportImpl;
+    }
+
+    private ApiEngineImpl connectStage(StageBase stageBase) {
+        lastFlow = lastFlow.via(stageBase.getStageConnector());
+        stages.add(stageBase);
+        return this;
     }
 }

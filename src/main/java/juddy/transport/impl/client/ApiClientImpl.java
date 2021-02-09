@@ -8,7 +8,6 @@ import juddy.transport.api.args.ArgsWrapper;
 import juddy.transport.api.args.CallInfo;
 import juddy.transport.api.client.ApiClient;
 import juddy.transport.api.common.ProxiedStage;
-import juddy.transport.impl.args.ArgsWrapperImpl;
 import juddy.transport.impl.common.ApiCallProcessor;
 import juddy.transport.impl.common.StageBase;
 import lombok.Builder;
@@ -68,6 +67,7 @@ public class ApiClientImpl extends StageBase implements ApiClient, ProxiedStage 
         return (T) points.get(clazz).getApiImpl();
     }
 
+    @Override
     public ApiCallProcessor getApiCallProcessor() {
         return apiCallProcessor;
     }
@@ -94,7 +94,7 @@ public class ApiClientImpl extends StageBase implements ApiClient, ProxiedStage 
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            ArgsWrapperImpl argsWrapper = ArgsWrapperImpl.of(args);
+            ArgsWrapper argsWrapper = ArgsWrapper.of(args);
             argsWrapper.setCallInfo(CallInfo.builder()
                     .apiMethod(method)
                     .apiClass((Class<Object>) method.getDeclaringClass()).build());

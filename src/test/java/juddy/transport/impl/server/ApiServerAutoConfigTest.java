@@ -54,7 +54,7 @@ class ApiServerAutoConfigTest {
     // Получаем строки из TestSource, преобразуем из в вызов единственного метода API, проверяем результат
     @Test
     void when_readFileSourceAndRunServerApi_then_ok() throws InterruptedException {
-        TestApiSinkServer testApiSinkServer = (TestApiSinkServer) apiEngineFromSource.getBean(TestApiSink.class);
+        TestApiSinkServer testApiSinkServer = (TestApiSinkServer) apiEngineFromSource.findServerBean(TestApiSink.class);
         testApiSinkServer.reset();
         apiEngineFromSource.run();
         Thread.sleep(1000);
@@ -64,7 +64,7 @@ class ApiServerAutoConfigTest {
     // Получаем строки, преобразуем из в вызов единственного метода API, далее еще один вызов API, проверяем результат
     @Test
     void when_readFileSourceAndRunServerApiAndNextOne_then_ok() throws InterruptedException {
-        TestApiSinkServer testApiSinkServer = (TestApiSinkServer) apiEngineFromSourceTwoPhases.getBean(TestApiSink.class);
+        TestApiSinkServer testApiSinkServer = (TestApiSinkServer) apiEngineFromSourceTwoPhases.findServerBean(TestApiSink.class);
         testApiSinkServer.reset();
         apiEngineFromSourceTwoPhases.run();
         Thread.sleep(1000);
@@ -82,7 +82,7 @@ class ApiServerAutoConfigTest {
     // Получаем строки, преобразуем из в вызов единственного метода API, с параметром объектом json из строки, далее еще один вызов API, проверяем результат
     @Test
     void when_readJsonFileSourceAndRunServerApiAndNextOne_then_ok() throws InterruptedException {
-        TestApiSinkServer testApiSinkServer = (TestApiSinkServer) apiEngineFromJsonSource.getBean(TestApiSink.class);
+        TestApiSinkServer testApiSinkServer = (TestApiSinkServer) apiEngineFromJsonSource.findServerBean(TestApiSink.class);
         testApiSinkServer.reset();
         apiEngineFromJsonSource.run();
         Thread.sleep(1000);
@@ -97,7 +97,7 @@ class ApiServerAutoConfigTest {
     // Получаем строки, преобразуем в json-объект, далее  вызов единственного метода API, с параметрами=полям объекта json, далее еще один вызов API, проверяем результат
     @Test
     void when_readJsonFileSourceAndRunServerApiWithSeveralArgumentsAndNextOne_then_ok() throws InterruptedException {
-        TestApiSinkServer testApiSinkServer = (TestApiSinkServer) apiEngineFromJsonSourceWithMultiplyArguments.getBean(TestApiSink.class);
+        TestApiSinkServer testApiSinkServer = (TestApiSinkServer) apiEngineFromJsonSourceWithMultiplyArguments.findServerBean(TestApiSink.class);
         testApiSinkServer.reset();
         apiEngineFromJsonSourceWithMultiplyArguments.run();
         Thread.sleep(1000);
@@ -111,7 +111,7 @@ class ApiServerAutoConfigTest {
 
     @Test
     void when_readJsonFileSourceAndRunServerWithMultiplyApi_then_ok() throws InterruptedException {
-        TestApiSinkServer testApiSinkServer = (TestApiSinkServer) apiEngineFromSourceWithMultiplyApi.getBean(TestApiSink.class);
+        TestApiSinkServer testApiSinkServer = (TestApiSinkServer) apiEngineFromSourceWithMultiplyApi.findServerBean(TestApiSink.class);
         testApiSinkServer.reset();
         apiEngineFromSourceWithMultiplyApi.run();
         Thread.sleep(1000);

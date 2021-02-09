@@ -4,7 +4,6 @@ import juddy.transport.api.TestApiGenderPerson;
 import juddy.transport.api.args.ArgsWrapper;
 import juddy.transport.api.args.CallInfo;
 import juddy.transport.api.dto.ObjectApiCallArguments;
-import juddy.transport.impl.args.ArgsWrapperImpl;
 import juddy.transport.impl.error.ApiCallException;
 import juddy.transport.impl.source.JsonFileSource;
 
@@ -18,9 +17,10 @@ public class CustomJsonFileSource<T> extends JsonFileSource<T> {
         super(filePath, objectClass);
     }
 
+    @Override
     public Function<ArgsWrapper, ArgsWrapper> getArgsConverter() {
         return argsWrapper -> {
-            ArgsWrapperImpl jsonArgsWrapper = (ArgsWrapperImpl) super.getArgsConverter().apply(argsWrapper);
+            ArgsWrapper jsonArgsWrapper = super.getArgsConverter().apply(argsWrapper);
             CallInfo<TestApiGenderPerson> callInfo = CallInfo.<TestApiGenderPerson>builder()
                     .apiClass(TestApiGenderPerson.class)
                     .apiMethod(getMethod(jsonArgsWrapper))
@@ -30,7 +30,7 @@ public class CustomJsonFileSource<T> extends JsonFileSource<T> {
         };
     }
 
-    private Method getMethod(ArgsWrapperImpl jsonArgsWrapper) {
+    private Method getMethod(ArgsWrapper jsonArgsWrapper) {
         try {
             ObjectApiCallArguments parameter = (ObjectApiCallArguments) jsonArgsWrapper.getApiCallArguments();
             TestApiGenderPerson.Person person = (TestApiGenderPerson.Person) parameter.getValue();

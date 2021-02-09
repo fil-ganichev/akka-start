@@ -2,7 +2,6 @@ package juddy.transport.impl.source;
 
 import juddy.transport.api.args.ArgsWrapper;
 import juddy.transport.api.dto.StringApiCallArguments;
-import juddy.transport.impl.args.ArgsWrapperImpl;
 import juddy.transport.impl.common.ApiSerialilizer;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -36,8 +35,9 @@ public class JsonFileSource<T> extends FileSource {
         withArgsConverter(getArgsConverter());
     }
 
+    @Override
     public Function<ArgsWrapper, ArgsWrapper> getArgsConverter() {
-        return argsWrapper -> ArgsWrapperImpl.of(apiSerialilizer.fromString(
+        return argsWrapper -> ArgsWrapper.of(apiSerialilizer.fromString(
                 ((StringApiCallArguments) argsWrapper.getApiCallArguments()).getValue(),
                 objectClass));
     }

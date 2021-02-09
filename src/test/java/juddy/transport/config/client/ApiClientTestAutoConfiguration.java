@@ -2,11 +2,10 @@ package juddy.transport.config.client;
 
 import juddy.transport.api.TestApi;
 import juddy.transport.api.TestApiServer;
+import juddy.transport.api.engine.ApiEngine;
 import juddy.transport.impl.config.StartConfiguration;
 import juddy.transport.impl.engine.ApiEngineFactory;
 import juddy.transport.impl.engine.ApiEngineImpl;
-import juddy.transport.api.engine.ApiEngine;
-import juddy.transport.impl.net.TcpServerTransportImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -33,7 +32,7 @@ public class ApiClientTestAutoConfiguration {
 
     @Bean(initMethod = "run")
     public ApiEngine apiEngineServer(ApiEngineFactory apiEngineFactory) {
-        return ApiEngineImpl.of((TcpServerTransportImpl) apiEngineFactory.tcpServerTransport("127.0.0.1", 8889)
+        return ApiEngineImpl.of(apiEngineFactory.tcpServerTransport("127.0.0.1", 8889)
                 .withErrorListener(e -> logger.error(e.toString(), e)))
                 .connect(apiEngineFactory.apiServer(Map.of(TestApi.class, TestApiServer.class)))
                 .withErrorListener(e -> logger.error(e.toString(), e));

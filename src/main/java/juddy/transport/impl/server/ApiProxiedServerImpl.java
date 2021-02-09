@@ -9,7 +9,6 @@ import juddy.transport.api.args.CallInfo;
 import juddy.transport.api.common.ProxiedStage;
 import juddy.transport.api.dto.ObjectApiCallArguments;
 import juddy.transport.impl.common.ApiCallProcessor;
-import juddy.transport.impl.args.ArgsWrapperImpl;
 import juddy.transport.impl.error.CallPointNotFoundException;
 import juddy.transport.impl.error.IllegalCallPointException;
 
@@ -127,7 +126,7 @@ public class ApiProxiedServerImpl extends ApiServerBase implements ProxiedStage 
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            ArgsWrapperImpl argsWrapper = ArgsWrapperImpl.of(args);
+            ArgsWrapper argsWrapper = ArgsWrapper.of(args);
             argsWrapper.setCallInfo(CallInfo.builder()
                     .apiMethod(findRealMethod(method))
                     .apiClass((Class<Object>) method.getDeclaringClass()).build());

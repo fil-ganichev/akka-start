@@ -9,7 +9,6 @@ import juddy.transport.api.args.ApiCallArguments;
 import juddy.transport.api.args.ArgsWrapper;
 import juddy.transport.api.dto.ArrayApiCallArguments;
 import juddy.transport.api.dto.ObjectApiCallArguments;
-import juddy.transport.impl.args.ArgsWrapperImpl;
 import juddy.transport.impl.client.ApiClientImpl;
 import juddy.transport.impl.config.StartConfiguration;
 import juddy.transport.impl.context.ApiEngineContextProvider;
@@ -55,7 +54,7 @@ public class ApiClientSimpleTest {
         runTcpServer(tcpServerTransport, argsWrapper -> {
             ApiCallArguments apiCallArguments = argsWrapper.getApiCallArguments();
             String arg = (String) ((ArrayApiCallArguments) apiCallArguments).getValues()[0];
-            ArgsWrapperImpl result = ArgsWrapperImpl.of(new ObjectApiCallArguments(Arrays.asList(arg.split(", "))))
+            ArgsWrapper result = ArgsWrapper.of(new ObjectApiCallArguments(Arrays.asList(arg.split(", "))))
                     .withCorrelationId(argsWrapper.getCorrelationId());
             result.setCallInfo(null);
             return result;

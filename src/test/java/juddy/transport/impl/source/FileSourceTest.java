@@ -6,7 +6,6 @@ import akka.stream.javadsl.Source;
 import akka.stream.testkit.javadsl.TestSink;
 import juddy.transport.api.args.ArgsWrapper;
 import juddy.transport.api.dto.StringApiCallArguments;
-import juddy.transport.impl.args.ArgsWrapperImpl;
 import juddy.transport.impl.config.StartConfiguration;
 import juddy.transport.impl.context.ApiEngineContextProvider;
 import org.junit.jupiter.api.Test;
@@ -65,7 +64,7 @@ class FileSourceTest {
                 .stream()
                 .limit(3)
                 .map(s -> s.concat("\r"))
-                .map(ArgsWrapperImpl::of)
+                .map(ArgsWrapper::of)
                 .collect(Collectors.toList());
         Source.empty(ArgsWrapper.class)
                 .via(fileSource.getStageConnector())

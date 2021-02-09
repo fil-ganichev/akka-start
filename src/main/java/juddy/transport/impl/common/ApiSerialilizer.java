@@ -7,7 +7,6 @@ import juddy.transport.api.args.ApiCallArguments;
 import juddy.transport.api.args.ArgsWrapper;
 import juddy.transport.api.args.CallInfo;
 import juddy.transport.api.dto.ObjectApiCallArguments;
-import juddy.transport.impl.args.ArgsWrapperImpl;
 import juddy.transport.impl.args.Message;
 import juddy.transport.impl.common.json.ObjectMapperUtils;
 import juddy.transport.impl.error.ApiCallSerializationException;
@@ -40,7 +39,7 @@ public class ApiSerialilizer {
     public String serializeArgs(ArgsWrapper argsWrapper) {
         try {
             return new String(Base64.getEncoder().encode(objectMapper
-                    .writeValueAsBytes(ArgsWrapperWrapperImpl.of(argsWrapper))));
+                    .writeValueAsBytes(ArgsWrapperWrapper.of(argsWrapper))));
         } catch (Exception e) {
             throw new ApiCallSerializationException(e);
         }
@@ -86,8 +85,8 @@ public class ApiSerialilizer {
     }
 
     public ArgsWrapper parameterFromBase64String(String source) throws NoSuchMethodException, UnsupportedEncodingException {
-        ArgsWrapperWrapperImpl argsWrapperWrapper = fromString(new String(Base64.getDecoder().decode(source.getBytes()), "UTF-8"), ArgsWrapperWrapperImpl.class);
-        ArgsWrapperImpl argsWrapper = ArgsWrapperWrapperImpl.to(argsWrapperWrapper);
+        ArgsWrapperWrapper argsWrapperWrapper = fromString(new String(Base64.getDecoder().decode(source.getBytes()), "UTF-8"), ArgsWrapperWrapper.class);
+        ArgsWrapper argsWrapper = ArgsWrapperWrapper.to(argsWrapperWrapper);
         return convertComplexArguments(argsWrapper);
     }
 
@@ -103,7 +102,7 @@ public class ApiSerialilizer {
     public Message welcome() {
         return Message.builder()
                 .messageType(Message.MessageType.WELCOME)
-                .base64Json(serializeArgs(ArgsWrapperImpl.of("")))
+                .base64Json(serializeArgs(ArgsWrapper.of("")))
                 .build();
     }
 
@@ -115,7 +114,7 @@ public class ApiSerialilizer {
         return apiClass.getName().concat(".").concat(methodName);
     }
 
-    private ArgsWrapper convertComplexArguments(ArgsWrapperImpl argsWrapper) {
+    private ArgsWrapper convertComplexArguments(ArgsWrapper argsWrapper) {
         if (!isResult(argsWrapper)) {
             String apiName = apiName(argsWrapper.getCallInfo().getApiClass(), argsWrapper.getCallInfo().getApiMethod().getName());
             List<TypeReference> types = apiTypes.get(apiName);
@@ -142,7 +141,7 @@ public class ApiSerialilizer {
         return objectMapper.convertValue(result, type);
     }
 
-    private boolean isResult(ArgsWrapperImpl argsWrapper) {
+    private boolean isResult(ArgsWrapper argsWrapper) {
         return argsWrapper.getCallInfo() == null;
     }
 
@@ -150,7 +149,7 @@ public class ApiSerialilizer {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    private static class ArgsWrapperWrapperImpl {
+    private static class ArgsWrapperWrapper {
 
         private ApiCallArguments apiCallArguments;
         private Class apiClass;
@@ -160,8 +159,8 @@ public class ApiSerialilizer {
         private Exception exception;
 
         @JsonIgnore
-        public static ArgsWrapperWrapperImpl of(ArgsWrapper argsWrapper) {
-            return ArgsWrapperWrapperImpl.builder()
+        public static ArgsWrapperWrapper of(ArgsWrapper argsWrapper) {
+            return ArgsWrapperWrapper.builder()
                     .apiCallArguments(argsWrapper.getApiCallArguments())
                     .correlationId(argsWrapper.getCorrelationId())
                     .exception(argsWrapper.getException())
@@ -172,8 +171,8 @@ public class ApiSerialilizer {
         }
 
         @JsonIgnore
-        public static ArgsWrapperImpl to(ArgsWrapperWrapperImpl argsWrapperWrapper) throws NoSuchMethodException {
-            ArgsWrapperImpl argsWrapper = ArgsWrapperImpl.of(argsWrapperWrapper.getApiCallArguments())
+        public static ArgsWrapper to(ArgsWrapperWrapper argsWrapperWrapper) throws NoSuchMethodException {
+            ArgsWrapper argsWrapper = ArgsWrapper.of(argsWrapperWrapper.getApiCallArguments())
                     .withCorrelationId(argsWrapperWrapper.getCorrelationId());
             argsWrapper.setException(argsWrapperWrapper.getException());
             if (argsWrapperWrapper.getApiClass() != null) {

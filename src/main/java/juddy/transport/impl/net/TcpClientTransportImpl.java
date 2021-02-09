@@ -8,7 +8,6 @@ import akka.stream.javadsl.Tcp;
 import akka.util.ByteString;
 import juddy.transport.api.args.ArgsWrapper;
 import juddy.transport.api.net.ApiTransport;
-import juddy.transport.impl.args.ArgsWrapperImpl;
 import juddy.transport.impl.args.Message;
 import juddy.transport.impl.common.ApiCallProcessor;
 import juddy.transport.impl.common.ApiSerialilizer;
@@ -74,7 +73,7 @@ public class TcpClientTransportImpl extends StageBase implements ApiTransport {
                 .map(ByteString::fromString)
                 .via(connection)
                 .via(repl)
-                .map(s -> (ArgsWrapper) (ArgsWrapperImpl.of((String) null)))
+                .map(s -> ArgsWrapper.of((String) null))
                 .map(this::checkError)
                 .mapError(new PFBuilder<Throwable, Throwable>()
                         .match(Exception.class, this::onError)

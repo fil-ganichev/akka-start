@@ -5,7 +5,6 @@ import juddy.transport.api.TestApi;
 import juddy.transport.api.TestApiCars;
 import juddy.transport.api.args.ArgsWrapper;
 import juddy.transport.api.args.CallInfo;
-import juddy.transport.impl.args.ArgsWrapperImpl;
 import juddy.transport.impl.args.Message;
 import juddy.transport.impl.common.ApiSerialilizer;
 import juddy.transport.impl.helper.dto.Car;
@@ -35,7 +34,7 @@ public class ApiSerialilizerTest {
 
     @Test
     void when_serializeArgsWrapper_then_ok() throws NoSuchMethodException, UnsupportedEncodingException {
-        ArgsWrapperImpl argsWrapper = argsWrapperSimple(new Object[]{"Москва", "Минск", "Киев", "Таллин", "Рига", "Кишинев"});
+        ArgsWrapper argsWrapper = argsWrapperSimple(new Object[]{"Москва", "Минск", "Киев", "Таллин", "Рига", "Кишинев"});
         String serialized = apiSerialilizer.serializeArgs(argsWrapper);
         ArgsWrapper fromSerialized = apiSerialilizer.parameterFromBase64String(serialized);
         assertThat(fromSerialized).isEqualTo(argsWrapper);
@@ -58,14 +57,14 @@ public class ApiSerialilizerTest {
                         },
                         new TypeReference<List<Driver>>() {
                         }));
-        ArgsWrapperImpl argsWrapper = argsWrapperComplexType(arrayOfObjects());
+        ArgsWrapper argsWrapper = argsWrapperComplexType(arrayOfObjects());
         String serialized = apiSerialilizer.serializeArgs(argsWrapper);
         ArgsWrapper fromSerialized = apiSerialilizer.parameterFromBase64String(serialized);
         assertThat(fromSerialized).isEqualTo(argsWrapper);
     }
 
     private String getMessageJson(String testNum) throws URISyntaxException, IOException {
-        Path testFile = Paths.get(ClassLoader.getSystemResource(String.format("apiHelperTest/case%s.json", testNum)).toURI());
+        Path testFile = Paths.get(ClassLoader.getSystemResource(String.format("apiSerializerTest/case%s.json", testNum)).toURI());
         return new String(Files.readAllBytes(testFile), Charset.forName("utf-8"));
     }
 
@@ -89,8 +88,8 @@ public class ApiSerialilizerTest {
         return new Object[]{car, Arrays.asList(mainDriver, additionalDriver)};
     }
 
-    private ArgsWrapperImpl argsWrapperSimple(Object[] arg) {
-        ArgsWrapperImpl argsWrapper = ArgsWrapperImpl.of(arg)
+    private ArgsWrapper argsWrapperSimple(Object[] arg) {
+        ArgsWrapper argsWrapper = ArgsWrapper.of(arg)
                 .withCorrelationId("1322ab78-abd6-4015-b59d-230ffabe4817");
         argsWrapper.setCallInfo(CallInfo.<TestApi>builder()
                 .apiClass(TestApi.class)
@@ -99,8 +98,8 @@ public class ApiSerialilizerTest {
         return argsWrapper;
     }
 
-    private ArgsWrapperImpl argsWrapperComplexType(Object[] args) {
-        ArgsWrapperImpl argsWrapper = ArgsWrapperImpl.of(args)
+    private ArgsWrapper argsWrapperComplexType(Object[] args) {
+        ArgsWrapper argsWrapper = ArgsWrapper.of(args)
                 .withCorrelationId("1322ab78-abd6-4015-b59d-230ffabe4817");
         argsWrapper.setCallInfo(CallInfo.<TestApiCars>builder()
                 .apiClass(TestApiCars.class)

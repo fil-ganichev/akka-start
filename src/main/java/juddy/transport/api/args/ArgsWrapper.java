@@ -1,22 +1,60 @@
 package juddy.transport.api.args;
 
-import juddy.transport.api.args.ApiCallArguments;
-import juddy.transport.api.args.CallInfo;
+import juddy.transport.api.dto.ArrayApiCallArguments;
+import juddy.transport.api.dto.ObjectApiCallArguments;
+import juddy.transport.api.dto.StringApiCallArguments;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
- * Интерфейс объекта обертки для агрументов вызова API (межсервисного и внутрисервисного)
+ * Класс объекта  для агрументов вызова API (межсервисного и внутрисервисного)
  *
  * @author Филипп Ганичев
  */
-public interface ArgsWrapper {
+@Data
+@EqualsAndHashCode
+public class ArgsWrapper {
 
-    ApiCallArguments getApiCallArguments();
+    private ApiCallArguments apiCallArguments;
+    private CallInfo callInfo;
+    private String correlationId;
+    private Exception exception;
 
-    CallInfo getCallInfo();
+    public static ArgsWrapper of(String arg) {
+        return new ArgsWrapper(new StringApiCallArguments(arg), null);
+    }
 
-    String getCorrelationId();
+    public static ArgsWrapper of(ApiCallArguments apiCallArguments) {
+        return new ArgsWrapper(apiCallArguments);
+    }
 
-    void setCorrelationId(String correlationId);
+    public static ArgsWrapper of(Exception e) {
+        return new ArgsWrapper(e);
+    }
 
-    Exception getException();
+    public static <T> ArgsWrapper of(T value) {
+        return new ArgsWrapper(new ObjectApiCallArguments<T>(value));
+    }
+
+    public static <T> ArgsWrapper of(T[] value) {
+        return new ArgsWrapper(new ArrayApiCallArguments(value));
+    }
+
+    public ArgsWrapper withCorrelationId(String correlationId) {
+        setCorrelationId(correlationId);
+        return this;
+    }
+
+    private ArgsWrapper(ApiCallArguments apiCallArguments, CallInfo callInfo) {
+        this.apiCallArguments = apiCallArguments;
+        this.callInfo = callInfo;
+    }
+
+    private ArgsWrapper(ApiCallArguments apiCallArguments) {
+        this.apiCallArguments = apiCallArguments;
+    }
+
+    private ArgsWrapper(Exception e) {
+        this.exception = e;
+    }
 }

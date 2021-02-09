@@ -19,8 +19,6 @@ public class ApiClientAutoConfigTest {
 
     @Autowired
     private ApiEngineImpl apiEngineClient;
-    @Autowired
-    private ApiEngineImpl apiEngineServer;
 
     @Test
     void when_callRemoteApiServerViaTcp_then_ok() throws ExecutionException, InterruptedException, TimeoutException {

@@ -7,7 +7,6 @@ import juddy.transport.api.args.CallInfo;
 import juddy.transport.api.dto.ArrayApiCallArguments;
 import juddy.transport.api.dto.ObjectApiCallArguments;
 import juddy.transport.api.server.ApiServer;
-import juddy.transport.impl.args.ArgsWrapperImpl;
 import juddy.transport.impl.common.StageBase;
 import juddy.transport.impl.error.ApiCallException;
 import juddy.transport.impl.error.CallPointNotFoundException;
@@ -62,7 +61,7 @@ public abstract class ApiServerBase extends StageBase implements ApiServer, Appl
             } else if (parameterTypes.length == 1) {
                 if (apiCallArguments instanceof ObjectApiCallArguments) {
                     Object result = method.invoke(bean, ((ObjectApiCallArguments) apiCallArguments).getValue());
-                    return ArgsWrapperImpl.of(result).withCorrelationId(argsWrapper.getCorrelationId());
+                    return ArgsWrapper.of(result).withCorrelationId(argsWrapper.getCorrelationId());
                 }
             }
             Object result;
@@ -76,12 +75,12 @@ public abstract class ApiServerBase extends StageBase implements ApiServer, Appl
                 List args = prepareArgValues(apiMethod, parameters);
                 result = method.invoke(bean, args.toArray(new Object[args.size()]));
             }
-            return ArgsWrapperImpl.of(result).withCorrelationId(argsWrapper.getCorrelationId());
+            return ArgsWrapper.of(result).withCorrelationId(argsWrapper.getCorrelationId());
         } catch (Exception e) {
             Exception cause = e.getCause() != null && e.getCause() instanceof Exception && e instanceof InvocationTargetException
                     ? (Exception) e.getCause()
                     : e;
-            return ArgsWrapperImpl.of(cause).withCorrelationId(argsWrapper.getCorrelationId());
+            return ArgsWrapper.of(cause).withCorrelationId(argsWrapper.getCorrelationId());
         }
     }
 
@@ -147,7 +146,7 @@ public abstract class ApiServerBase extends StageBase implements ApiServer, Appl
                 if (points.size() == 1) {
                     CallPoint callPoint = points.values().stream().findFirst().orElseThrow();
                     if (callPoint.getMethods().size() == 1) {
-                        ((ArgsWrapperImpl) argsWrapper).setCallInfo(CallInfo.builder()
+                        argsWrapper.setCallInfo(CallInfo.builder()
                                 .apiClass(callPoint.getApi())
                                 .apiMethod((Method) callPoint.getMethods().stream().findFirst().orElseThrow())
                                 .build());

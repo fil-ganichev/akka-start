@@ -6,7 +6,6 @@ import akka.stream.alpakka.file.javadsl.FileTailSource;
 import akka.stream.javadsl.Flow;
 import akka.stream.javadsl.Source;
 import juddy.transport.api.args.ArgsWrapper;
-import juddy.transport.impl.args.ArgsWrapperImpl;
 
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -47,7 +46,7 @@ public class FileSource extends ApiSourceImpl<String> {
 
     protected Flow<ArgsWrapper, ArgsWrapper, NotUsed> createConnector() {
         return Flow.of(ArgsWrapper.class)
-                .merge(getSource().map(ArgsWrapperImpl::of))
+                .merge(getSource().map(ArgsWrapper::of))
                 .log(logTitle("value from source"))
                 .map(this::next)
                 .map(this::checkError)
