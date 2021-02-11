@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
-public class ApiEngineImpl implements ApiEngine {
+public final class ApiEngineImpl implements ApiEngine {
 
     private final ArrayList<StageBase> stages = new ArrayList<>();
     private final ErrorProcessor errorProcessor = new ErrorProcessor();

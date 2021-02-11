@@ -1,11 +1,11 @@
 package juddy.transport.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import juddy.transport.api.args.ApiCallArguments;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import juddy.transport.api.args.ApiCallArguments;
 
 @Data
 @AllArgsConstructor
@@ -13,7 +13,7 @@ import juddy.transport.api.args.ApiCallArguments;
 @EqualsAndHashCode
 public class ArrayApiCallArguments implements ApiCallArguments {
 
-    private Object values[];
+    private Object[] values;
 
     @Override
     public Object getResult() {

@@ -32,10 +32,11 @@ import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@SuppressWarnings({"checkstyle:methodName", "checkstyle:hiddenField"})
 @Configuration
 @Import(StartConfiguration.class)
 @SpringJUnitConfig(ApiClientSimpleTest.class)
-public class ApiClientSimpleTest {
+class ApiClientSimpleTest {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -101,7 +102,8 @@ public class ApiClientSimpleTest {
         return TcpServerTransportImpl.of("127.0.0.1", 8889);
     }
 
-    private TcpServerTransportImpl runTcpServer(TcpServerTransportImpl tcpServerTransport, Function<ArgsWrapper, ArgsWrapper> processor) throws Exception {
+    private TcpServerTransportImpl runTcpServer(TcpServerTransportImpl tcpServerTransport,
+                                                Function<ArgsWrapper, ArgsWrapper> processor) throws Exception {
         tcpServerTransport.run(Flow.of(ArgsWrapper.class).map(processor::apply));
         return tcpServerTransport;
     }

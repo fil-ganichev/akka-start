@@ -5,7 +5,7 @@ import juddy.transport.api.common.ApiBean;
 @ApiBean(TestApiPersonFio.class)
 public class TestApiPersonFioServer implements TestApiPersonFio {
 
-    private static char SPACE_DELIMITER = ' ';
+    private static final char SPACE_DELIMITER = ' ';
 
     @Override
     public String getFio(String firstName, String lastName) {

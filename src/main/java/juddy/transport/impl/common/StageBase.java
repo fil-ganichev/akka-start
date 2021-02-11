@@ -46,6 +46,7 @@ public abstract class StageBase implements Stage, InitializingBean {
     }
 
     @Override
+    @SuppressWarnings("checkstyle:hiddenField")
     public StageBase withArgsConverter(Function<ArgsWrapper, ArgsWrapper> argsConverter) {
         this.argsConverter = argsConverter;
         return this;

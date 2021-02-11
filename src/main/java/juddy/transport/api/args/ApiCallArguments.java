@@ -27,7 +27,7 @@ public interface ApiCallArguments {
     Type getArgsType();
 
     @AllArgsConstructor
-    static enum Type {
+    enum Type {
         OBJECT(0),
         STRING(1),
         ARRAY(2);

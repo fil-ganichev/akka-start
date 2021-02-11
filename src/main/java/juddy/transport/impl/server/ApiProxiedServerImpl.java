@@ -3,9 +3,9 @@ package juddy.transport.impl.server;
 import akka.NotUsed;
 import akka.japi.pf.PFBuilder;
 import akka.stream.javadsl.Flow;
-import juddy.transport.api.common.ApiBean;
 import juddy.transport.api.args.ArgsWrapper;
 import juddy.transport.api.args.CallInfo;
+import juddy.transport.api.common.ApiBean;
 import juddy.transport.api.common.ProxiedStage;
 import juddy.transport.api.dto.ObjectApiCallArguments;
 import juddy.transport.impl.common.ApiCallProcessor;
@@ -61,7 +61,7 @@ public class ApiProxiedServerImpl extends ApiServerBase implements ProxiedStage 
     }
 
     @Override
-    protected <T> Method findCallingMethod(ArgsWrapper argsWrapper, CallPoint<T> callPoint) throws NoSuchMethodException {
+    protected <T> Method findCallingMethod(ArgsWrapper argsWrapper, CallPoint<T> callPoint) {
         return argsWrapper.getCallInfo().getApiMethod();
     }
 
@@ -103,9 +103,11 @@ public class ApiProxiedServerImpl extends ApiServerBase implements ProxiedStage 
                 .filter(bean -> isApiBeanOf(bean, clazz))
                 .collect(Collectors.toList());
         if (beanList.isEmpty()) {
-            throw new CallPointNotFoundException(String.format("Beans of type %s anotated by %s not found", clazz.getName(), ApiBean.class.getName()));
+            throw new CallPointNotFoundException(String.format("Beans of type %s anotated by %s not found",
+                    clazz.getName(), ApiBean.class.getName()));
         } else if (beanList.size() > 1) {
-            throw new CallPointNotFoundException(String.format("Too many beans of type %s anotated by %s found", clazz.getName(), ApiBean.class.getName()));
+            throw new CallPointNotFoundException(String.format("Too many beans of type %s anotated by %s found",
+                    clazz.getName(), ApiBean.class.getName()));
         }
         return beanList.get(0);
     }

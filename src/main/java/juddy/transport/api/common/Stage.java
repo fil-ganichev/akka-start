@@ -1,6 +1,5 @@
 package juddy.transport.api.common;
 
-
 import juddy.transport.api.args.ArgsWrapper;
 
 import java.util.function.Consumer;

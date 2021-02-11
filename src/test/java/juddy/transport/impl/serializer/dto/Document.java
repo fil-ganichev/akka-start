@@ -1,4 +1,4 @@
-package juddy.transport.impl.helper.dto;
+package juddy.transport.impl.serializer.dto;
 
 import lombok.*;
 

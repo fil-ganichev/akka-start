@@ -59,7 +59,8 @@ public class TcpClientTransportImpl extends StageBase implements ApiTransport {
                         .log(logTitle("incoming message"))
                         .map(message -> {
                             if (message.getMessageType() == Message.MessageType.REQUEST) {
-                                ArgsWrapper argsWrapper = apiSerialilizer.parameterFromBase64String(message.getBase64Json());
+                                ArgsWrapper argsWrapper = apiSerialilizer.parameterFromBase64String(
+                                        message.getBase64Json());
                                 apiCallProcessor.response(argsWrapper);
                             }
                             return ByteString.emptyByteString();
@@ -80,6 +81,7 @@ public class TcpClientTransportImpl extends StageBase implements ApiTransport {
                         .build());
     }
 
+    @SuppressWarnings("checkstyle:hiddenField")
     public TcpClientTransportImpl withApiCallProcessor(ApiCallProcessor apiCallProcessor) {
         this.apiCallProcessor = apiCallProcessor;
         return this;

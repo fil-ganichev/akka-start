@@ -24,7 +24,6 @@ public class ApiEngineFactory implements ApplicationContextAware {
     private ApplicationContext applicationContext;
     private DefaultListableBeanFactory beanFactory;
 
-
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;

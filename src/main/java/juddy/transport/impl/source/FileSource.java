@@ -31,12 +31,12 @@ public class FileSource extends ApiSourceImpl<String> {
 
     @Override
     protected Source createSource() {
-        Source<String, NotUsed> lines = FileTailSource.createLines(getFilePath(),
+        Source<String, NotUsed> sourceLines = FileTailSource.createLines(getFilePath(),
                 fileSourceProperties.getMaxLineSize(),
                 Duration.ofMillis(fileSourceProperties.getPollingInterval()),
                 fileSourceProperties.getDelimiter(),
                 fileSourceProperties.getCharset());
-        return lines;
+        return sourceLines;
     }
 
     @Override

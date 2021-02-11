@@ -13,12 +13,25 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode
-public class ArgsWrapper {
+public final class ArgsWrapper {
 
     private ApiCallArguments apiCallArguments;
     private CallInfo callInfo;
     private String correlationId;
     private Exception exception;
+
+    private ArgsWrapper(ApiCallArguments apiCallArguments, CallInfo callInfo) {
+        this.apiCallArguments = apiCallArguments;
+        this.callInfo = callInfo;
+    }
+
+    private ArgsWrapper(ApiCallArguments apiCallArguments) {
+        this.apiCallArguments = apiCallArguments;
+    }
+
+    private ArgsWrapper(Exception e) {
+        this.exception = e;
+    }
 
     public static ArgsWrapper of(String arg) {
         return new ArgsWrapper(new StringApiCallArguments(arg), null);
@@ -40,21 +53,9 @@ public class ArgsWrapper {
         return new ArgsWrapper(new ArrayApiCallArguments(value));
     }
 
+    @SuppressWarnings("checkstyle:hiddenField")
     public ArgsWrapper withCorrelationId(String correlationId) {
-        setCorrelationId(correlationId);
+        this.correlationId = correlationId;
         return this;
-    }
-
-    private ArgsWrapper(ApiCallArguments apiCallArguments, CallInfo callInfo) {
-        this.apiCallArguments = apiCallArguments;
-        this.callInfo = callInfo;
-    }
-
-    private ArgsWrapper(ApiCallArguments apiCallArguments) {
-        this.apiCallArguments = apiCallArguments;
-    }
-
-    private ArgsWrapper(Exception e) {
-        this.exception = e;
     }
 }

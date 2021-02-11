@@ -1,6 +1,9 @@
 package juddy.transport.impl.server;
 
-import juddy.transport.api.*;
+import juddy.transport.api.TestApi;
+import juddy.transport.api.TestApiPhaseOne;
+import juddy.transport.api.TestApiPhaseTwo;
+import juddy.transport.api.TestApiSinkServer;
 import juddy.transport.api.engine.ApiEngine;
 import juddy.transport.config.server.ApiServerTestManualConfiguration;
 import juddy.transport.utils.FileSourceHelper;
@@ -15,6 +18,7 @@ import java.util.concurrent.TimeoutException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@SuppressWarnings({"checkstyle:methodName", "checkstyle:throwsCount"})
 @SpringJUnitConfig(ApiServerTestManualConfiguration.class)
 class ApiServerManualConfigTest {
 
@@ -43,7 +47,8 @@ class ApiServerManualConfigTest {
     // Вызываем сервер явно, получаем результат
     @Test
     void when_callApiServer_then_ok() throws ExecutionException, InterruptedException, TimeoutException {
-        List<String> cities = testApi.split("Москва, Минск, Киев, Таллин, Рига, Кишинев").get(500, TimeUnit.MILLISECONDS);
+        List<String> cities = testApi.split("Москва, Минск, Киев, Таллин, Рига, Кишинев")
+                .get(500, TimeUnit.MILLISECONDS);
         assertThat(cities).containsExactly("Москва", "Минск", "Киев", "Таллин", "Рига", "Кишинев");
     }
 
@@ -51,7 +56,8 @@ class ApiServerManualConfigTest {
     @Test
     void when_callApiServerAndNextOne_then_ok() throws ExecutionException, InterruptedException, TimeoutException {
         testApiSinkServer.reset();
-        List<String> cities = testApiPhaseOne.split("Москва, Минск, Киев, Таллин, Рига, Кишинев").get(500, TimeUnit.MILLISECONDS);
+        List<String> cities = testApiPhaseOne.split("Москва, Минск, Киев, Таллин, Рига, Кишинев")
+                .get(500, TimeUnit.MILLISECONDS);
         Thread.sleep(100);
         testApiSinkServer.check(6);
     }

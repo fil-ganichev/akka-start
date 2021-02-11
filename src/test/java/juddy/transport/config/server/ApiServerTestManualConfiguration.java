@@ -80,7 +80,8 @@ public class ApiServerTestManualConfiguration {
     }
 
     @Bean(initMethod = "run")
-    public ApiEngine apiEngineTwoPhases(ApiProxiedServerImpl apiServerPhaseOne, ApiServerImpl apiServerPhaseTwo, ApiServerImpl sinkServer) {
+    public ApiEngine apiEngineTwoPhases(ApiProxiedServerImpl apiServerPhaseOne, ApiServerImpl apiServerPhaseTwo,
+                                        ApiServerImpl sinkServer) {
         return ApiEngineImpl.of(apiServerPhaseOne)
                 .connect(apiServerPhaseTwo)
                 .connect(sinkServer)

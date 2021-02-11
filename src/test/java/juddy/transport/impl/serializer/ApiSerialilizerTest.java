@@ -1,4 +1,4 @@
-package juddy.transport.impl.helper;
+package juddy.transport.impl.serializer;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import juddy.transport.api.TestApi;
@@ -7,10 +7,10 @@ import juddy.transport.api.args.ArgsWrapper;
 import juddy.transport.api.args.CallInfo;
 import juddy.transport.impl.args.Message;
 import juddy.transport.impl.common.ApiSerialilizer;
-import juddy.transport.impl.helper.dto.Car;
-import juddy.transport.impl.helper.dto.Document;
-import juddy.transport.impl.helper.dto.Driver;
-import juddy.transport.impl.helper.dto.Model;
+import juddy.transport.impl.serializer.dto.Car;
+import juddy.transport.impl.serializer.dto.Document;
+import juddy.transport.impl.serializer.dto.Driver;
+import juddy.transport.impl.serializer.dto.Model;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,14 +27,16 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ApiSerialilizerTest {
+@SuppressWarnings({"checkstyle:methodName", "checkstyle:throwsCount"})
+class ApiSerialilizerTest {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final ApiSerialilizer apiSerialilizer = new ApiSerialilizer();
 
     @Test
     void when_serializeArgsWrapper_then_ok() throws NoSuchMethodException, UnsupportedEncodingException {
-        ArgsWrapper argsWrapper = argsWrapperSimple(new Object[]{"Москва", "Минск", "Киев", "Таллин", "Рига", "Кишинев"});
+        ArgsWrapper argsWrapper = argsWrapperSimple(new Object[]
+                {"Москва", "Минск", "Киев", "Таллин", "Рига", "Кишинев"});
         String serialized = apiSerialilizer.serializeArgs(argsWrapper);
         ArgsWrapper fromSerialized = apiSerialilizer.parameterFromBase64String(serialized);
         assertThat(fromSerialized).isEqualTo(argsWrapper);
@@ -50,7 +52,8 @@ public class ApiSerialilizerTest {
     }
 
     @Test
-    void when_serializeArgsWrapperWithArrayOfObjects_then_ok() throws NoSuchMethodException, UnsupportedEncodingException {
+    void when_serializeArgsWrapperWithArrayOfObjects_then_ok()
+            throws NoSuchMethodException, UnsupportedEncodingException {
         apiSerialilizer.registerApiTypes("juddy.transport.api.TestApiCars.registerCar",
                 Arrays.asList(
                         new TypeReference<Car>() {
@@ -64,7 +67,8 @@ public class ApiSerialilizerTest {
     }
 
     private String getMessageJson(String testNum) throws URISyntaxException, IOException {
-        Path testFile = Paths.get(ClassLoader.getSystemResource(String.format("apiSerializerTest/case%s.json", testNum)).toURI());
+        Path testFile = Paths.get(ClassLoader.getSystemResource(
+                String.format("apiSerializerTest/case%s.json", testNum)).toURI());
         return new String(Files.readAllBytes(testFile), Charset.forName("utf-8"));
     }
 

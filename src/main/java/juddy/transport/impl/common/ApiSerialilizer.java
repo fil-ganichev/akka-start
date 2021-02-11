@@ -25,8 +25,7 @@ import java.util.Map;
 public class ApiSerialilizer {
 
     private final ObjectMapper objectMapper;
-    private static final Map<String, List<TypeReference>> apiTypes = new HashMap<>();
-
+    private final Map<String, List<TypeReference>> apiTypes = new HashMap<>();
 
     public ApiSerialilizer(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
@@ -44,7 +43,6 @@ public class ApiSerialilizer {
             throw new ApiCallSerializationException(e);
         }
     }
-
 
     public String toString(Object source) {
         try {
@@ -84,8 +82,10 @@ public class ApiSerialilizer {
         return fromString(source, Message.class);
     }
 
-    public ArgsWrapper parameterFromBase64String(String source) throws NoSuchMethodException, UnsupportedEncodingException {
-        ArgsWrapperWrapper argsWrapperWrapper = fromString(new String(Base64.getDecoder().decode(source.getBytes()), "UTF-8"), ArgsWrapperWrapper.class);
+    public ArgsWrapper parameterFromBase64String(String source)
+            throws NoSuchMethodException, UnsupportedEncodingException {
+        ArgsWrapperWrapper argsWrapperWrapper = fromString(new String(Base64.getDecoder().decode(source.getBytes()),
+                "UTF-8"), ArgsWrapperWrapper.class);
         ArgsWrapper argsWrapper = ArgsWrapperWrapper.to(argsWrapperWrapper);
         return convertComplexArguments(argsWrapper);
     }
@@ -116,7 +116,8 @@ public class ApiSerialilizer {
 
     private ArgsWrapper convertComplexArguments(ArgsWrapper argsWrapper) {
         if (!isResult(argsWrapper)) {
-            String apiName = apiName(argsWrapper.getCallInfo().getApiClass(), argsWrapper.getCallInfo().getApiMethod().getName());
+            String apiName = apiName(argsWrapper.getCallInfo().getApiClass(),
+                    argsWrapper.getCallInfo().getApiMethod().getName());
             List<TypeReference> types = apiTypes.get(apiName);
             if (types != null) {
                 ApiCallArguments apiCallArguments = argsWrapper.getApiCallArguments();
@@ -154,7 +155,7 @@ public class ApiSerialilizer {
         private ApiCallArguments apiCallArguments;
         private Class apiClass;
         private String methodName;
-        private Class parameterTypes[];
+        private Class[] parameterTypes;
         private String correlationId;
         private Exception exception;
 
@@ -164,9 +165,15 @@ public class ApiSerialilizer {
                     .apiCallArguments(argsWrapper.getApiCallArguments())
                     .correlationId(argsWrapper.getCorrelationId())
                     .exception(argsWrapper.getException())
-                    .apiClass(argsWrapper.getCallInfo() == null ? null : argsWrapper.getCallInfo().getApiClass())
-                    .methodName(argsWrapper.getCallInfo() == null ? null : argsWrapper.getCallInfo().getApiMethod().getName())
-                    .parameterTypes(argsWrapper.getCallInfo() == null ? null : argsWrapper.getCallInfo().getApiMethod().getParameterTypes())
+                    .apiClass(argsWrapper.getCallInfo() == null
+                            ? null
+                            : argsWrapper.getCallInfo().getApiClass())
+                    .methodName(argsWrapper.getCallInfo() == null
+                            ? null :
+                            argsWrapper.getCallInfo().getApiMethod().getName())
+                    .parameterTypes(argsWrapper.getCallInfo() == null
+                            ? null :
+                            argsWrapper.getCallInfo().getApiMethod().getParameterTypes())
                     .build();
         }
 
@@ -178,7 +185,8 @@ public class ApiSerialilizer {
             if (argsWrapperWrapper.getApiClass() != null) {
                 argsWrapper.setCallInfo(CallInfo.builder()
                         .apiClass(argsWrapperWrapper.getApiClass())
-                        .apiMethod(argsWrapperWrapper.getApiClass().getMethod(argsWrapperWrapper.getMethodName(), argsWrapperWrapper.getParameterTypes()))
+                        .apiMethod(argsWrapperWrapper.getApiClass().getMethod(argsWrapperWrapper.getMethodName(),
+                                argsWrapperWrapper.getParameterTypes()))
                         .build());
             }
             return argsWrapper;

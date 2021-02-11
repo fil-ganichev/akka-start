@@ -3,10 +3,10 @@ package juddy.transport.impl.server;
 import akka.NotUsed;
 import akka.japi.pf.PFBuilder;
 import akka.stream.javadsl.Flow;
-import juddy.transport.impl.error.CallPointNotFoundException;
+import juddy.transport.api.args.ArgsWrapper;
 import juddy.transport.api.common.ApiBean;
 import juddy.transport.api.server.ApiServer;
-import juddy.transport.api.args.ArgsWrapper;
+import juddy.transport.impl.error.CallPointNotFoundException;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -59,9 +59,11 @@ public class ApiServerImpl extends ApiServerBase implements ApiServer {
         Set<String> beanNames = beans.keySet();
         beanNames.retainAll(candidates);
         if (beanNames.isEmpty()) {
-            throw new CallPointNotFoundException(String.format("Too many beans of type %s anotated by %s found", clazz.getName(), ApiBean.class.getName()));
+            throw new CallPointNotFoundException(String.format("Too many beans of type %s anotated by %s found",
+                    clazz.getName(), ApiBean.class.getName()));
         } else if (beanNames.size() > 1) {
-            throw new CallPointNotFoundException(String.format("Too many beans of type %s anotated by %s found", clazz.getName(), ApiBean.class.getName()));
+            throw new CallPointNotFoundException(String.format("Too many beans of type %s anotated by %s found",
+                    clazz.getName(), ApiBean.class.getName()));
         }
         return (T) getApplicationContext().getBean(String.valueOf(beanNames.toArray()[0]));
     }
@@ -69,7 +71,8 @@ public class ApiServerImpl extends ApiServerBase implements ApiServer {
     @Override
     protected <T> void initCallPoint(CallPoint<T> point) {
         if (point.getApiServerImpl() == null) {
-            Set<String> beanNameCandidates = new HashSet<>(Arrays.asList(getApplicationContext().getBeanNamesForAnnotation(ApiBean.class)));
+            Set<String> beanNameCandidates = new HashSet<>(Arrays.asList(
+                    getApplicationContext().getBeanNamesForAnnotation(ApiBean.class)));
             point.setApiServerImpl(findBean(point.getApi(), beanNameCandidates));
         }
         Set<Method> methods = Arrays.asList(point.getApi().getMethods())
@@ -79,7 +82,8 @@ public class ApiServerImpl extends ApiServerBase implements ApiServer {
     }
 
     @Override
-    protected <T> Method findCallingMethod(ArgsWrapper argsWrapper, CallPoint<T> callPoint) throws NoSuchMethodException {
+    protected <T> Method findCallingMethod(ArgsWrapper argsWrapper, CallPoint<T> callPoint)
+            throws NoSuchMethodException {
         Method method = argsWrapper.getCallInfo().getApiMethod();
         if (Modifier.isAbstract(method.getModifiers())) {
             method = callPoint.getApiServerImpl().getClass().getMethod(method.getName(), method.getParameterTypes());

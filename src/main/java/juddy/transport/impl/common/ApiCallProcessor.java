@@ -45,7 +45,8 @@ public class ApiCallProcessor {
                 response.complete(argsWrapper);
             }
         } else {
-            throw new ApiException(String.format("Request with correlationId %s not found", argsWrapper.getCorrelationId()));
+            throw new ApiException(String.format("Request with correlationId %s not found",
+                    argsWrapper.getCorrelationId()));
         }
     }
 }

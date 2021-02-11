@@ -7,7 +7,6 @@ public class ApiEngineException extends RuntimeException {
     }
 
     public ApiEngineException() {
-        super();
     }
 
     public ApiEngineException(String errorMessage) {

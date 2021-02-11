@@ -14,9 +14,12 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 
-public class ObjectMapperUtils {
+public final class ObjectMapperUtils {
 
     private static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.S";
+
+    private ObjectMapperUtils() {
+    }
 
     public static ObjectMapper createObjectMapper() {
         return createObjectMapper(null);

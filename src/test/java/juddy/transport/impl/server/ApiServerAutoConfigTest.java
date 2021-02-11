@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@SuppressWarnings({"checkstyle:methodName", "checkstyle:throwsCount"})
 @SpringJUnitConfig(ApiServerTestAutoConfiguration.class)
 class ApiServerAutoConfigTest {
 
@@ -47,7 +48,8 @@ class ApiServerAutoConfigTest {
     @Test
     void when_callApiServer_then_ok() throws ExecutionException, InterruptedException, TimeoutException {
         TestApi testApi = apiEngine.findProxy(TestApi.class);
-        List<String> cities = testApi.split("Москва, Минск, Киев, Таллин, Рига, Кишинев").get(500, TimeUnit.MILLISECONDS);
+        List<String> cities = testApi.split("Москва, Минск, Киев, Таллин, Рига, Кишинев")
+                .get(500, TimeUnit.MILLISECONDS);
         assertThat(cities).containsExactly("Москва", "Минск", "Киев", "Таллин", "Рига", "Кишинев");
     }
 
@@ -64,7 +66,8 @@ class ApiServerAutoConfigTest {
     // Получаем строки, преобразуем из в вызов единственного метода API, далее еще один вызов API, проверяем результат
     @Test
     void when_readFileSourceAndRunServerApiAndNextOne_then_ok() throws InterruptedException {
-        TestApiSinkServer testApiSinkServer = (TestApiSinkServer) apiEngineFromSourceTwoPhases.findServerBean(TestApiSink.class);
+        TestApiSinkServer testApiSinkServer = (TestApiSinkServer) apiEngineFromSourceTwoPhases
+                .findServerBean(TestApiSink.class);
         testApiSinkServer.reset();
         apiEngineFromSourceTwoPhases.run();
         Thread.sleep(1000);
@@ -79,10 +82,12 @@ class ApiServerAutoConfigTest {
                         .getValues().size()]));
     }
 
-    // Получаем строки, преобразуем из в вызов единственного метода API, с параметром объектом json из строки, далее еще один вызов API, проверяем результат
+    // Получаем строки, преобразуем из в вызов единственного метода API, с параметром объектом json из строки,
+    // далее еще один вызов API, проверяем результат
     @Test
     void when_readJsonFileSourceAndRunServerApiAndNextOne_then_ok() throws InterruptedException {
-        TestApiSinkServer testApiSinkServer = (TestApiSinkServer) apiEngineFromJsonSource.findServerBean(TestApiSink.class);
+        TestApiSinkServer testApiSinkServer = (TestApiSinkServer) apiEngineFromJsonSource
+                .findServerBean(TestApiSink.class);
         testApiSinkServer.reset();
         apiEngineFromJsonSource.run();
         Thread.sleep(1000);
@@ -94,10 +99,12 @@ class ApiServerAutoConfigTest {
                 .toArray(new String[jsonFileSourceHelper.getValues().size()]));
     }
 
-    // Получаем строки, преобразуем в json-объект, далее  вызов единственного метода API, с параметрами=полям объекта json, далее еще один вызов API, проверяем результат
+    // Получаем строки, преобразуем в json-объект, далее  вызов единственного метода API
+    // с параметрами=полям объекта json, далее еще один вызов API, проверяем результат
     @Test
     void when_readJsonFileSourceAndRunServerApiWithSeveralArgumentsAndNextOne_then_ok() throws InterruptedException {
-        TestApiSinkServer testApiSinkServer = (TestApiSinkServer) apiEngineFromJsonSourceWithMultiplyArguments.findServerBean(TestApiSink.class);
+        TestApiSinkServer testApiSinkServer = (TestApiSinkServer) apiEngineFromJsonSourceWithMultiplyArguments
+                .findServerBean(TestApiSink.class);
         testApiSinkServer.reset();
         apiEngineFromJsonSourceWithMultiplyArguments.run();
         Thread.sleep(1000);
@@ -111,7 +118,8 @@ class ApiServerAutoConfigTest {
 
     @Test
     void when_readJsonFileSourceAndRunServerWithMultiplyApi_then_ok() throws InterruptedException {
-        TestApiSinkServer testApiSinkServer = (TestApiSinkServer) apiEngineFromSourceWithMultiplyApi.findServerBean(TestApiSink.class);
+        TestApiSinkServer testApiSinkServer = (TestApiSinkServer) apiEngineFromSourceWithMultiplyApi
+                .findServerBean(TestApiSink.class);
         testApiSinkServer.reset();
         apiEngineFromSourceWithMultiplyApi.run();
         Thread.sleep(1000);
@@ -131,12 +139,6 @@ class ApiServerAutoConfigTest {
                 + person.getMiddleName();
     }
 
-    private String getShortFio(TestApiPerson.Person person) {
-        return person.getFirstName()
-                + SPACE_DELIMITER
-                + person.getLastName();
-    }
-
     private String getFio(TestApiGenderPerson.Person person) {
         return (person.getGender() == TestApiGenderPerson.Gender.MALE
                 ? "Господин "
@@ -146,5 +148,11 @@ class ApiServerAutoConfigTest {
                 + person.getLastName()
                 + SPACE_DELIMITER
                 + person.getMiddleName();
+    }
+
+    private String getShortFio(TestApiPerson.Person person) {
+        return person.getFirstName()
+                + SPACE_DELIMITER
+                + person.getLastName();
     }
 }

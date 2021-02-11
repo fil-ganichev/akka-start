@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutionException;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD;
 
+@SuppressWarnings({"checkstyle:methodName", "checkstyle:throwsCount"})
 @SpringJUnitConfig(ApiServerTestAutoConfiguration.class)
 @DirtiesContext(classMode = AFTER_EACH_TEST_METHOD)
 class ApiServerAutoConfigExceptionTest {

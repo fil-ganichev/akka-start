@@ -46,7 +46,8 @@ public abstract class ApiServerBase extends StageBase implements ApiServer, Appl
         this.applicationContext = applicationContext;
     }
 
-    protected abstract <T> Method findCallingMethod(ArgsWrapper argsWrapper, CallPoint<T> callPoint) throws NoSuchMethodException;
+    protected abstract <T> Method findCallingMethod(ArgsWrapper argsWrapper, CallPoint<T> callPoint)
+            throws NoSuchMethodException;
 
     protected <T> ArgsWrapper call(ArgsWrapper argsWrapper) {
         try {
@@ -54,7 +55,7 @@ public abstract class ApiServerBase extends StageBase implements ApiServer, Appl
             CallPoint<T> callPoint = points.get(apiClass);
             Method method = findCallingMethod(argsWrapper, callPoint);
             Object bean = callPoint.getApiServerImpl();
-            Class<?> parameterTypes[] = method.getParameterTypes();
+            Class<?>[] parameterTypes = method.getParameterTypes();
             ApiCallArguments apiCallArguments = argsWrapper.getApiCallArguments();
             if (parameterTypes.length == 0) {
                 throw new IllegalCallPointException();
@@ -77,7 +78,9 @@ public abstract class ApiServerBase extends StageBase implements ApiServer, Appl
             }
             return ArgsWrapper.of(result).withCorrelationId(argsWrapper.getCorrelationId());
         } catch (Exception e) {
-            Exception cause = e.getCause() != null && e.getCause() instanceof Exception && e instanceof InvocationTargetException
+            Exception cause = e.getCause() != null
+                    && e.getCause() instanceof Exception
+                    && e instanceof InvocationTargetException
                     ? (Exception) e.getCause()
                     : e;
             return ArgsWrapper.of(cause).withCorrelationId(argsWrapper.getCorrelationId());

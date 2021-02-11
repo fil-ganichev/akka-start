@@ -20,6 +20,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD;
 
+@SuppressWarnings({"checkstyle:methodName", "checkstyle:throwsCount"})
 @SpringJUnitConfig(ApiServerTestManualConfiguration.class)
 @DirtiesContext(classMode = AFTER_EACH_TEST_METHOD)
 class ApiServerManualConfigExceptionTest {
@@ -39,10 +40,12 @@ class ApiServerManualConfigExceptionTest {
     }
 
     @Test
-    void when_callApiServerAndNextOneWithException_then_stopFlow() throws InterruptedException, ExecutionException, TimeoutException {
+    void when_callApiServerAndNextOneWithException_then_stopFlow()
+            throws InterruptedException, ExecutionException, TimeoutException {
         testApiSinkServer.reset();
         when(testApiPhaseTwo.size(anyList())).thenThrow(new RuntimeException("Test"));
-        List<String> cities = testApiPhaseOne.split("Москва, Минск, Киев, Таллин, Рига, Кишинев").get(500, TimeUnit.MILLISECONDS);
+        List<String> cities = testApiPhaseOne.split("Москва, Минск, Киев, Таллин, Рига, Кишинев")
+                .get(500, TimeUnit.MILLISECONDS);
         Thread.sleep(100);
         testApiSinkServer.check();
     }

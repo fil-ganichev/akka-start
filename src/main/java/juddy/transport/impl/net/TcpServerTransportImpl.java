@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.CompletionStage;
 
-public class TcpServerTransportImpl extends StageBase implements ApiTransport {
+public final class TcpServerTransportImpl extends StageBase implements ApiTransport {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 

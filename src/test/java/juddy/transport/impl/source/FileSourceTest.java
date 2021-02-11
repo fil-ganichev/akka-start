@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static scala.collection.JavaConverters.asScala;
 
+@SuppressWarnings({"checkstyle:methodName", "checkstyle:hiddenField"})
 @Configuration
 @Import(StartConfiguration.class)
 @SpringJUnitConfig(FileSourceTest.class)
@@ -36,7 +37,7 @@ class FileSourceTest {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
-    ApiEngineContextProvider apiEngineContextProvider;
+    private ApiEngineContextProvider apiEngineContextProvider;
     @Autowired
     private FileSource fileSource;
 

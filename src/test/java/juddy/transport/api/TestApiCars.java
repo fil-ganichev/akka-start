@@ -1,8 +1,8 @@
 package juddy.transport.api;
 
 import juddy.transport.api.common.Api;
-import juddy.transport.impl.helper.dto.Car;
-import juddy.transport.impl.helper.dto.Driver;
+import juddy.transport.impl.serializer.dto.Car;
+import juddy.transport.impl.serializer.dto.Driver;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
