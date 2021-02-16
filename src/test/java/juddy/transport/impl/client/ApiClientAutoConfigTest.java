@@ -25,7 +25,7 @@ class ApiClientAutoConfigTest {
     void when_callRemoteApiServerViaTcp_then_ok() throws ExecutionException, InterruptedException, TimeoutException {
         TestApi testApi = apiEngineClient.findProxy(TestApi.class);
         List<String> cities = testApi.split("Москва, Минск, Киев, Таллин, Рига, Кишинев")
-                .get(500, TimeUnit.MILLISECONDS);
+                .get(1000, TimeUnit.MILLISECONDS);
         assertThat(cities).containsExactly("Москва", "Минск", "Киев", "Таллин", "Рига", "Кишинев");
     }
 }

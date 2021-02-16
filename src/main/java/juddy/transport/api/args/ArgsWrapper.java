@@ -16,11 +16,11 @@ import lombok.EqualsAndHashCode;
 public final class ArgsWrapper {
 
     private ApiCallArguments apiCallArguments;
-    private CallInfo callInfo;
+    private CallInfo<?> callInfo;
     private String correlationId;
     private Exception exception;
 
-    private ArgsWrapper(ApiCallArguments apiCallArguments, CallInfo callInfo) {
+    private ArgsWrapper(ApiCallArguments apiCallArguments, CallInfo<?> callInfo) {
         this.apiCallArguments = apiCallArguments;
         this.callInfo = callInfo;
     }

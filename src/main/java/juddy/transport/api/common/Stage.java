@@ -3,7 +3,7 @@ package juddy.transport.api.common;
 import juddy.transport.api.args.ArgsWrapper;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  * Общий интерфейс для всех компонент akka-коннектора
@@ -16,7 +16,7 @@ public interface Stage {
 
     void init();
 
-    Stage withArgsConverter(Function<ArgsWrapper, ArgsWrapper> argsConverter);
+    Stage withArgsConverter(UnaryOperator<ArgsWrapper> argsConverter);
 
     Stage withErrorListener(Consumer<Exception> errorListener);
 }

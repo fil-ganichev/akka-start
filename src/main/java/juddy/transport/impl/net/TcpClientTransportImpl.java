@@ -12,15 +12,11 @@ import juddy.transport.impl.args.Message;
 import juddy.transport.impl.common.ApiCallProcessor;
 import juddy.transport.impl.common.ApiSerialilizer;
 import juddy.transport.impl.common.StageBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.CompletionStage;
 
 public class TcpClientTransportImpl extends StageBase implements ApiTransport {
-
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final String host;
     private final int port;

@@ -9,7 +9,6 @@ import juddy.transport.impl.server.ApiProxiedServerImpl;
 import juddy.transport.impl.server.ApiServerBase;
 import juddy.transport.impl.server.ApiServerImpl;
 import juddy.transport.impl.source.ApiSourceImpl;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.ApplicationContext;
@@ -25,7 +24,7 @@ public class ApiEngineFactory implements ApplicationContextAware {
     private DefaultListableBeanFactory beanFactory;
 
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    public void setApplicationContext(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
         this.beanFactory = (DefaultListableBeanFactory) applicationContext.getAutowireCapableBeanFactory();
     }
@@ -54,7 +53,7 @@ public class ApiEngineFactory implements ApplicationContextAware {
         return apiProxiedServerImpl;
     }
 
-    public ApiSourceImpl apiSource(ApiSourceImpl apiSource) {
+    public <T> ApiSourceImpl<T> apiSource(ApiSourceImpl<T> apiSource) {
         registerStageBean(apiSource);
         return apiSource;
     }
@@ -90,14 +89,14 @@ public class ApiEngineFactory implements ApplicationContextAware {
     }
 
     private String generateBeanName(Class<?> clazz) {
-        String baseName = clazz.getSimpleName();
+        StringBuilder baseName = new StringBuilder(clazz.getSimpleName());
         for (int i = 1; true; i++) {
-            baseName = baseName + i;
-            if (!applicationContext.containsBean(baseName)) {
+            baseName.append(i);
+            if (!applicationContext.containsBean(baseName.toString())) {
                 break;
             }
         }
-        return baseName;
+        return baseName.toString();
     }
 
     private void registerApiServer(ApiServerBase apiServerBase) {

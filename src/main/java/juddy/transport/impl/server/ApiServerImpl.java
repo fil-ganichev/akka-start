@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 public class ApiServerImpl extends ApiServerBase implements ApiServer {
 
-    protected ApiServerImpl(Map<Class<?>, CallPoint> points) {
+    protected ApiServerImpl(Map<Class<?>, CallPoint<?>> points) {
         super(points);
     }
 
@@ -48,7 +48,7 @@ public class ApiServerImpl extends ApiServerBase implements ApiServer {
     }
 
     public Object getBean(Class<?> clazz) {
-        CallPoint callPoint = getPoints().get(clazz);
+        CallPoint<?> callPoint = getPoints().get(clazz);
         return callPoint == null
                 ? null
                 : callPoint.getApiServerImpl();
@@ -59,7 +59,7 @@ public class ApiServerImpl extends ApiServerBase implements ApiServer {
         Set<String> beanNames = beans.keySet();
         beanNames.retainAll(candidates);
         if (beanNames.isEmpty()) {
-            throw new CallPointNotFoundException(String.format("Too many beans of type %s anotated by %s found",
+            throw new CallPointNotFoundException(String.format("No beans of type %s anotated by %s found",
                     clazz.getName(), ApiBean.class.getName()));
         } else if (beanNames.size() > 1) {
             throw new CallPointNotFoundException(String.format("Too many beans of type %s anotated by %s found",

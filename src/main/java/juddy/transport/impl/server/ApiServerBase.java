@@ -9,13 +9,10 @@ import juddy.transport.api.dto.ObjectApiCallArguments;
 import juddy.transport.api.server.ApiServer;
 import juddy.transport.impl.common.StageBase;
 import juddy.transport.impl.error.ApiCallException;
+import juddy.transport.impl.error.ApiException;
 import juddy.transport.impl.error.CallPointNotFoundException;
 import juddy.transport.impl.error.IllegalCallPointException;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import org.springframework.beans.BeansException;
+import lombok.*;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
@@ -26,23 +23,23 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 @Getter(AccessLevel.PROTECTED)
 public abstract class ApiServerBase extends StageBase implements ApiServer, ApplicationContextAware {
 
-    private final Map<Class<?>, CallPoint> points;
+    private final Map<Class<?>, CallPoint<?>> points;
 
     private ApplicationContext applicationContext;
 
-    protected ApiServerBase(Map<Class<?>, CallPoint> points) {
+    protected ApiServerBase(Map<Class<?>, CallPoint<?>> points) {
         this.points = points;
         setArgsConverter(new DefaultApiServerArgsConverter());
     }
 
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    public void setApplicationContext(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
     }
 
@@ -51,19 +48,17 @@ public abstract class ApiServerBase extends StageBase implements ApiServer, Appl
 
     protected <T> ArgsWrapper call(ArgsWrapper argsWrapper) {
         try {
-            Class<T> apiClass = argsWrapper.getCallInfo().getApiClass();
-            CallPoint<T> callPoint = points.get(apiClass);
+            Class<T> apiClass = ((CallInfo<T>) argsWrapper.getCallInfo()).getApiClass();
+            CallPoint<T> callPoint = (CallPoint<T>) points.get(apiClass);
             Method method = findCallingMethod(argsWrapper, callPoint);
             Object bean = callPoint.getApiServerImpl();
             Class<?>[] parameterTypes = method.getParameterTypes();
             ApiCallArguments apiCallArguments = argsWrapper.getApiCallArguments();
             if (parameterTypes.length == 0) {
                 throw new IllegalCallPointException();
-            } else if (parameterTypes.length == 1) {
-                if (apiCallArguments instanceof ObjectApiCallArguments) {
-                    Object result = method.invoke(bean, ((ObjectApiCallArguments) apiCallArguments).getValue());
-                    return ArgsWrapper.of(result).withCorrelationId(argsWrapper.getCorrelationId());
-                }
+            } else if (parameterTypes.length == 1 && apiCallArguments instanceof ObjectApiCallArguments) {
+                Object result = method.invoke(bean, ((ObjectApiCallArguments) apiCallArguments).getValue());
+                return ArgsWrapper.of(result).withCorrelationId(argsWrapper.getCorrelationId());
             }
             Object result;
             if (apiCallArguments instanceof ArrayApiCallArguments) {
@@ -73,26 +68,28 @@ public abstract class ApiServerBase extends StageBase implements ApiServer, Appl
                         ? ((ObjectApiCallArguments) apiCallArguments).getValue()
                         : apiCallArguments;
                 Method apiMethod = callPoint.getApi().getMethod(method.getName(), method.getParameterTypes());
-                List args = prepareArgValues(apiMethod, parameters);
-                result = method.invoke(bean, args.toArray(new Object[args.size()]));
+                List<?> args = prepareArgValues(apiMethod, parameters);
+                result = method.invoke(bean, args.toArray(new Object[0]));
             }
             return ArgsWrapper.of(result).withCorrelationId(argsWrapper.getCorrelationId());
-        } catch (Exception e) {
-            Exception cause = e.getCause() != null
-                    && e.getCause() instanceof Exception
-                    && e instanceof InvocationTargetException
+        } catch (InvocationTargetException e) {
+            Exception cause = e.getCause() instanceof Exception
                     ? (Exception) e.getCause()
                     : e;
             return ArgsWrapper.of(cause).withCorrelationId(argsWrapper.getCorrelationId());
+        } catch (Exception e) {
+            return ArgsWrapper.of(e).withCorrelationId(argsWrapper.getCorrelationId());
         }
     }
 
-    private List prepareArgValues(Method method, Object parameters) {
+    private List<Object> prepareArgValues(Method method, Object parameters) {
         return Arrays.stream(method.getParameterAnnotations())
                 .map(annotattions -> Arrays.stream(annotattions)
                         .filter(annotattion -> annotattion.annotationType().equals(ApiArg.class))
                         .findFirst()
-                        .orElseThrow())
+                        .orElseThrow(() -> new ApiCallException(
+                                String.format("Annotation @ApiArg not found on parameters of method %s",
+                                        method.getName()))))
                 .map(annotation -> findValue(((ApiArg) annotation).value(), parameters))
                 .collect(Collectors.toList());
     }
@@ -114,21 +111,6 @@ public abstract class ApiServerBase extends StageBase implements ApiServer, Appl
 
     protected abstract <T> void initCallPoint(CallPoint<T> point);
 
-    protected static Map<Class<?>, CallPoint> apiToCallPoints(List<Class<?>> apiInterfaces) {
-        return apiInterfaces
-                .stream()
-                .collect(Collectors.toMap(clazz -> clazz,
-                        clazz -> CallPoint.builder().api((Class<Object>) clazz).build()));
-    }
-
-    protected static Map<Class<?>, CallPoint> apiToCallPoints(Map<Class<?>, Object> api) {
-        return api.keySet().stream().collect(Collectors.toList())
-                .stream()
-                .collect(Collectors.toMap(clazz -> clazz,
-                        clazz -> CallPoint.builder().api((Class<Object>) clazz)
-                                .apiServerImpl(api.get(clazz)).build()));
-    }
-
     @Data
     @Builder
     protected static class CallPoint<T> {
@@ -141,19 +123,21 @@ public abstract class ApiServerBase extends StageBase implements ApiServer, Appl
         private Set<Method> methods;
     }
 
-    protected class DefaultApiServerArgsConverter implements Function<ArgsWrapper, ArgsWrapper> {
+    protected class DefaultApiServerArgsConverter implements UnaryOperator<ArgsWrapper> {
 
+        @SneakyThrows
         @Override
         public ArgsWrapper apply(ArgsWrapper argsWrapper) {
-            if (argsWrapper.getCallInfo() == null) {
-                if (points.size() == 1) {
-                    CallPoint callPoint = points.values().stream().findFirst().orElseThrow();
-                    if (callPoint.getMethods().size() == 1) {
-                        argsWrapper.setCallInfo(CallInfo.builder()
-                                .apiClass(callPoint.getApi())
-                                .apiMethod((Method) callPoint.getMethods().stream().findFirst().orElseThrow())
-                                .build());
-                    }
+            if (argsWrapper.getCallInfo() == null && points.size() == 1) {
+                CallPoint<?> callPoint = points.values().stream().findFirst().orElseThrow(
+                        () -> new ApiException("Call points list is empty"));
+                if (callPoint.getMethods().size() == 1) {
+                    argsWrapper.setCallInfo(CallInfo.builder()
+                            .apiClass((Class<Object>) callPoint.getApi())
+                            .apiMethod((Method) callPoint.getMethods().stream()
+                                    .findFirst()
+                                    .orElseThrow(() -> new ApiException("Method list is empty in call point")))
+                            .build());
                 }
             }
             if (argsWrapper.getCallInfo() == null) {

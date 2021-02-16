@@ -14,7 +14,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 public abstract class StageBase implements Stage, InitializingBean {
 
@@ -24,7 +24,7 @@ public abstract class StageBase implements Stage, InitializingBean {
     private Flow<ArgsWrapper, ArgsWrapper, NotUsed> stageConnector;
     @Getter
     @Setter
-    private Function<ArgsWrapper, ArgsWrapper> argsConverter;
+    private UnaryOperator<ArgsWrapper> argsConverter;
     @Autowired
     @Getter(AccessLevel.PROTECTED)
     private ApiEngineContextProvider apiEngineContextProvider;
@@ -32,11 +32,11 @@ public abstract class StageBase implements Stage, InitializingBean {
     protected StageBase() {
     }
 
-    protected StageBase(Function<ArgsWrapper, ArgsWrapper> argsConverter) {
+    protected StageBase(UnaryOperator<ArgsWrapper> argsConverter) {
         this.argsConverter = argsConverter;
     }
 
-    protected StageBase(Function<ArgsWrapper, ArgsWrapper> argsConverter, Consumer<Exception> errorListener) {
+    protected StageBase(UnaryOperator<ArgsWrapper> argsConverter, Consumer<Exception> errorListener) {
         this.argsConverter = argsConverter;
         errorProcessor.setErrorListener(errorListener);
     }
@@ -47,7 +47,7 @@ public abstract class StageBase implements Stage, InitializingBean {
 
     @Override
     @SuppressWarnings("checkstyle:hiddenField")
-    public StageBase withArgsConverter(Function<ArgsWrapper, ArgsWrapper> argsConverter) {
+    public StageBase withArgsConverter(UnaryOperator<ArgsWrapper> argsConverter) {
         this.argsConverter = argsConverter;
         return this;
     }

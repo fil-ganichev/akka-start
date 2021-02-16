@@ -8,7 +8,7 @@ import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.nio.file.Path;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 public class JsonFileSource<T> extends FileSource {
 
@@ -36,7 +36,7 @@ public class JsonFileSource<T> extends FileSource {
     }
 
     @Override
-    public Function<ArgsWrapper, ArgsWrapper> getArgsConverter() {
+    public UnaryOperator<ArgsWrapper> getArgsConverter() {
         return argsWrapper -> ArgsWrapper.of(apiSerialilizer.fromString(
                 ((StringApiCallArguments) argsWrapper.getApiCallArguments()).getValue(),
                 objectClass));

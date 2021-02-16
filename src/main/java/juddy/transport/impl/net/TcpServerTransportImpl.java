@@ -8,20 +8,16 @@ import akka.stream.javadsl.JsonFraming;
 import akka.stream.javadsl.Source;
 import akka.stream.javadsl.Tcp;
 import akka.util.ByteString;
-import juddy.transport.impl.common.ApiSerialilizer;
-import juddy.transport.impl.args.Message;
-import juddy.transport.impl.common.StageBase;
-import juddy.transport.api.net.ApiTransport;
 import juddy.transport.api.args.ArgsWrapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import juddy.transport.api.net.ApiTransport;
+import juddy.transport.impl.args.Message;
+import juddy.transport.impl.common.ApiSerialilizer;
+import juddy.transport.impl.common.StageBase;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.CompletionStage;
 
 public final class TcpServerTransportImpl extends StageBase implements ApiTransport {
-
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final String host;
     private final int port;

@@ -23,15 +23,15 @@ import java.util.stream.Collectors;
 
 public class ApiClientImpl extends StageBase implements ApiClient, ProxiedStage {
 
-    private final Map<Class<?>, CallPoint> points;
+    private final Map<Class<?>, CallPoint<?>> points;
     private final ApiCallProcessor apiCallProcessor;
 
-    protected ApiClientImpl(ApiCallProcessor apiCallProcessor, Map<Class<?>, CallPoint> points) {
+    protected ApiClientImpl(ApiCallProcessor apiCallProcessor, Map<Class<?>, CallPoint<?>> points) {
         this.apiCallProcessor = apiCallProcessor;
         this.points = points;
     }
 
-    protected ApiClientImpl(Map<Class<?>, CallPoint> points) {
+    protected ApiClientImpl(Map<Class<?>, CallPoint<?>> points) {
         this(new ApiCallProcessor(), points);
     }
 

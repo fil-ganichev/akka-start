@@ -9,6 +9,7 @@ import juddy.transport.api.common.ApiBean;
 import juddy.transport.api.common.ProxiedStage;
 import juddy.transport.api.dto.ObjectApiCallArguments;
 import juddy.transport.impl.common.ApiCallProcessor;
+import juddy.transport.impl.error.ApiCallException;
 import juddy.transport.impl.error.CallPointNotFoundException;
 import juddy.transport.impl.error.IllegalCallPointException;
 
@@ -23,21 +24,28 @@ public class ApiProxiedServerImpl extends ApiServerBase implements ProxiedStage 
 
     private final ApiCallProcessor apiCallProcessor;
 
-    protected ApiProxiedServerImpl(ApiCallProcessor apiCallProcessor, Map<Class<?>, CallPoint> points) {
+    protected ApiProxiedServerImpl(ApiCallProcessor apiCallProcessor, Map<Class<?>, CallPoint<?>> points) {
         super(points);
         this.apiCallProcessor = apiCallProcessor;
     }
 
-    protected ApiProxiedServerImpl(Map<Class<?>, CallPoint> points) {
+    protected ApiProxiedServerImpl(Map<Class<?>, CallPoint<?>> points) {
         this(new ApiCallProcessor(), points);
     }
 
     public static ApiProxiedServerImpl of(List<Class<?>> apiInterfaces) {
-        return new ApiProxiedServerImpl(apiToCallPoints(apiInterfaces));
+        return new ApiProxiedServerImpl(apiInterfaces
+                .stream()
+                .collect(Collectors.toMap(clazz -> clazz,
+                        clazz -> CallPoint.builder().api((Class<Object>) clazz).build())));
     }
 
     public static ApiProxiedServerImpl of(Map<Class<?>, Object> api) {
-        return new ApiProxiedServerImpl(apiToCallPoints(api));
+        return new ApiProxiedServerImpl(api.keySet().stream().collect(Collectors.toList())
+                .stream()
+                .collect(Collectors.toMap(clazz -> clazz,
+                        clazz -> CallPoint.builder().api((Class<Object>) clazz)
+                                .apiServerImpl(api.get(clazz)).build())));
     }
 
     @Override
@@ -98,7 +106,7 @@ public class ApiProxiedServerImpl extends ApiServerBase implements ProxiedStage 
     }
 
     private <T> Object findBean(Class<T> clazz, Map<String, Object> candidates) {
-        List beanList = candidates.entrySet().stream()
+        List<?> beanList = candidates.entrySet().stream()
                 .map(Map.Entry::getValue)
                 .filter(bean -> isApiBeanOf(bean, clazz))
                 .collect(Collectors.toList());
@@ -113,8 +121,8 @@ public class ApiProxiedServerImpl extends ApiServerBase implements ProxiedStage 
     }
 
     private <T> boolean isApiBeanOf(T bean, Class<?> clazz) {
-        Class beanClass = bean.getClass();
-        ApiBean apiBean = (ApiBean) beanClass.getAnnotation(ApiBean.class);
+        Class<?> beanClass = bean.getClass();
+        ApiBean apiBean = beanClass.getAnnotation(ApiBean.class);
         return clazz.equals(apiBean.value());
     }
 
@@ -137,19 +145,19 @@ public class ApiProxiedServerImpl extends ApiServerBase implements ProxiedStage 
         }
 
         private Object fromArgsWrapper(ArgsWrapper answer) {
-            ObjectApiCallArguments result = (ObjectApiCallArguments) answer.getApiCallArguments();
+            ObjectApiCallArguments<?> result = (ObjectApiCallArguments<?>) answer.getApiCallArguments();
             return result.getValue();
         }
 
         private Method findRealMethod(Method method) {
-            Method realMethod = point
-                    .getMethods()
+            return point.getMethods()
                     .stream()
                     .filter(currMethod -> currMethod.getName().equals(method.getName())
                             && Arrays.equals(currMethod.getParameterTypes(), method.getParameterTypes()))
                     .findFirst()
-                    .orElseThrow();
-            return realMethod;
+                    .orElseThrow(() -> new ApiCallException(String.format("Method %s not found with parameters %s",
+                            method.getName(),
+                            Arrays.toString(method.getParameterTypes()))));
         }
     }
 }

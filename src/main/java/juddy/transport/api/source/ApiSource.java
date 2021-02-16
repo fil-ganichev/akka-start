@@ -7,5 +7,5 @@ import juddy.transport.api.common.Stage;
  *
  * @author Филипп Ганичев
  */
-public interface ApiSource<In> extends Stage {
+public interface ApiSource extends Stage {
 }

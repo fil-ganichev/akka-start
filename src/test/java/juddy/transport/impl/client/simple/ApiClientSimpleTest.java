@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -103,7 +103,7 @@ class ApiClientSimpleTest {
     }
 
     private TcpServerTransportImpl runTcpServer(TcpServerTransportImpl tcpServerTransport,
-                                                Function<ArgsWrapper, ArgsWrapper> processor) throws Exception {
+                                                UnaryOperator<ArgsWrapper> processor) throws Exception {
         tcpServerTransport.run(Flow.of(ArgsWrapper.class).map(processor::apply));
         return tcpServerTransport;
     }

@@ -107,7 +107,7 @@ public final class ApiEngineImpl implements ApiEngine {
     }
 
     private ApiCallProcessor findClientApiCallProcessor() {
-        for (int i = stages.size() - 1; i >= 0; i++) {
+        for (int i = stages.size() - 1; i >= 0; i--) {
             if (stages.get(i) instanceof ApiClient) {
                 return ((ApiClient) stages.get(i)).getApiCallProcessor();
             }

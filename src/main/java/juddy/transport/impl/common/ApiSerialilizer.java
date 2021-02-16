@@ -16,7 +16,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +25,7 @@ import java.util.Map;
 public class ApiSerialilizer {
 
     private final ObjectMapper objectMapper;
-    private final Map<String, List<TypeReference>> apiTypes = new HashMap<>();
+    private final Map<String, List<TypeReference<?>>> apiTypes = new HashMap<>();
 
     public ApiSerialilizer(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
@@ -82,10 +82,9 @@ public class ApiSerialilizer {
         return fromString(source, Message.class);
     }
 
-    public ArgsWrapper parameterFromBase64String(String source)
-            throws NoSuchMethodException, UnsupportedEncodingException {
+    public ArgsWrapper parameterFromBase64String(String source) throws NoSuchMethodException {
         ArgsWrapperWrapper argsWrapperWrapper = fromString(new String(Base64.getDecoder().decode(source.getBytes()),
-                "UTF-8"), ArgsWrapperWrapper.class);
+                StandardCharsets.UTF_8), ArgsWrapperWrapper.class);
         ArgsWrapper argsWrapper = ArgsWrapperWrapper.to(argsWrapperWrapper);
         return convertComplexArguments(argsWrapper);
     }
@@ -106,11 +105,11 @@ public class ApiSerialilizer {
                 .build();
     }
 
-    public void registerApiTypes(String apiName, List<TypeReference> types) {
+    public void registerApiTypes(String apiName, List<TypeReference<?>> types) {
         apiTypes.put(apiName, types);
     }
 
-    private String apiName(Class apiClass, String methodName) {
+    private String apiName(Class<?> apiClass, String methodName) {
         return apiClass.getName().concat(".").concat(methodName);
     }
 
@@ -118,7 +117,7 @@ public class ApiSerialilizer {
         if (!isResult(argsWrapper)) {
             String apiName = apiName(argsWrapper.getCallInfo().getApiClass(),
                     argsWrapper.getCallInfo().getApiMethod().getName());
-            List<TypeReference> types = apiTypes.get(apiName);
+            List<TypeReference<?>> types = apiTypes.get(apiName);
             if (types != null) {
                 ApiCallArguments apiCallArguments = argsWrapper.getApiCallArguments();
                 if (apiCallArguments.getArgsType() == ApiCallArguments.Type.OBJECT) {
@@ -135,7 +134,7 @@ public class ApiSerialilizer {
         return argsWrapper;
     }
 
-    private Object convertValueOfComplexType(Object result, TypeReference type) {
+    private Object convertValueOfComplexType(Object result, TypeReference<?> type) {
         if (result == null) {
             return null;
         }
@@ -153,7 +152,7 @@ public class ApiSerialilizer {
     private static class ArgsWrapperWrapper {
 
         private ApiCallArguments apiCallArguments;
-        private Class apiClass;
+        private Class<?> apiClass;
         private String methodName;
         private Class[] parameterTypes;
         private String correlationId;
@@ -184,7 +183,7 @@ public class ApiSerialilizer {
             argsWrapper.setException(argsWrapperWrapper.getException());
             if (argsWrapperWrapper.getApiClass() != null) {
                 argsWrapper.setCallInfo(CallInfo.builder()
-                        .apiClass(argsWrapperWrapper.getApiClass())
+                        .apiClass((Class<Object>) argsWrapperWrapper.getApiClass())
                         .apiMethod(argsWrapperWrapper.getApiClass().getMethod(argsWrapperWrapper.getMethodName(),
                                 argsWrapperWrapper.getParameterTypes()))
                         .build());

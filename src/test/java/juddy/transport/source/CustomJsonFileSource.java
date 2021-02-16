@@ -9,7 +9,7 @@ import juddy.transport.impl.source.JsonFileSource;
 
 import java.lang.reflect.Method;
 import java.nio.file.Path;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 public class CustomJsonFileSource<T> extends JsonFileSource<T> {
 
@@ -18,7 +18,7 @@ public class CustomJsonFileSource<T> extends JsonFileSource<T> {
     }
 
     @Override
-    public Function<ArgsWrapper, ArgsWrapper> getArgsConverter() {
+    public UnaryOperator<ArgsWrapper> getArgsConverter() {
         return argsWrapper -> {
             ArgsWrapper jsonArgsWrapper = super.getArgsConverter().apply(argsWrapper);
             CallInfo<TestApiGenderPerson> callInfo = CallInfo.<TestApiGenderPerson>builder()

@@ -5,7 +5,7 @@ import akka.stream.javadsl.Source;
 import juddy.transport.api.source.ApiSource;
 import juddy.transport.impl.common.StageBase;
 
-public abstract class ApiSourceImpl<In> extends StageBase implements ApiSource<In> {
+public abstract class ApiSourceImpl<In> extends StageBase implements ApiSource {
 
     protected abstract Source<In, NotUsed> createSource();
 
