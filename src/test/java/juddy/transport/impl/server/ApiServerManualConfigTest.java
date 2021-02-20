@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
 @SuppressWarnings({"checkstyle:methodName", "checkstyle:throwsCount"})
 @SpringJUnitConfig(ApiServerTestManualConfiguration.class)
@@ -40,7 +41,8 @@ class ApiServerManualConfigTest {
     void when_readFileSourceAndRunServerApi_then_ok() throws InterruptedException {
         testApiSinkServer.reset();
         apiEngineFromSource.run();
-        Thread.sleep(1000);
+        await().atMost(1, TimeUnit.SECONDS).until(
+                testApiSinkServer.processed(fileSourceHelper.getValues().size()));
         testApiSinkServer.check(fileSourceHelper.getValues().toArray(new String[fileSourceHelper.getValues().size()]));
     }
 
@@ -58,7 +60,8 @@ class ApiServerManualConfigTest {
         testApiSinkServer.reset();
         List<String> cities = testApiPhaseOne.split("Москва, Минск, Киев, Таллин, Рига, Кишинев")
                 .get(500, TimeUnit.MILLISECONDS);
-        Thread.sleep(100);
+        await().atMost(1, TimeUnit.SECONDS).until(
+                testApiSinkServer.processed(1));
         testApiSinkServer.check(6);
     }
 }

@@ -23,9 +23,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static scala.collection.JavaConverters.asScala;
 
 @SuppressWarnings({"checkstyle:methodName", "checkstyle:hiddenField"})
@@ -46,14 +49,18 @@ class FileSourceTest {
         Path testFile = testFile();
         List<String> expected = Files.readAllLines(testFile).subList(0, 3);
         List<String> target = new ArrayList<>();
+        AtomicLong steps = new AtomicLong();
         Source.empty(ArgsWrapper.class)
                 .via(fileSource.getStageConnector())
                 .take(3)
-                .runWith(Sink.foreach(arg -> target.add(((StringApiCallArguments)
-                        arg.getApiCallArguments())
-                        .getValue()
-                        .replace("\r", ""))), getActorSystem());
-        Thread.sleep(1000);
+                .runWith(Sink.foreach(arg -> {
+                    target.add(((StringApiCallArguments)
+                            arg.getApiCallArguments())
+                            .getValue()
+                            .replace("\r", ""));
+                    steps.incrementAndGet();
+                }), getActorSystem());
+        await().atMost(1, TimeUnit.SECONDS).until(() -> steps.get() >= 3);
         assertThat(expected).isEqualTo(target);
     }
 

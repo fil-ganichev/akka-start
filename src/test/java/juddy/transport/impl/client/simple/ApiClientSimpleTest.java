@@ -28,9 +28,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.UnaryOperator;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
 @SuppressWarnings({"checkstyle:methodName", "checkstyle:hiddenField"})
 @Configuration
@@ -63,15 +65,18 @@ class ApiClientSimpleTest {
     }
 
     @Test
-    void when_apiClientCall_thenOk() throws Exception {
+    void when_apiClientCall_thenOk() {
         List<Object> results = new ArrayList<>();
+        AtomicLong steps = new AtomicLong();
         Source.empty(ArgsWrapper.class)
                 .via(apiClient.getStageConnector())
-                .runWith(Sink.foreach(arg -> results.add(arg.getApiCallArguments().getResult())),
-                        getActorSystem());
+                .runWith(Sink.foreach(arg -> {
+                    results.add(arg.getApiCallArguments().getResult());
+                    steps.incrementAndGet();
+                }), getActorSystem());
         TestApi testApi = apiClient.getProxy(TestApi.class);
         testApi.split(source);
-        Thread.sleep(1000);
+        await().atMost(1, TimeUnit.SECONDS).until(() -> steps.get() >= 1);
         assertThat(results.size()).isEqualTo(1);
         assertThat(results.get(0)).isEqualTo(new Object[]{source});
     }

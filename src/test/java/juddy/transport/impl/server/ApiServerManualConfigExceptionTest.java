@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
@@ -46,7 +47,7 @@ class ApiServerManualConfigExceptionTest {
         when(testApiPhaseTwo.size(anyList())).thenThrow(new RuntimeException("Test"));
         List<String> cities = testApiPhaseOne.split("Москва, Минск, Киев, Таллин, Рига, Кишинев")
                 .get(500, TimeUnit.MILLISECONDS);
-        Thread.sleep(100);
+        await().atLeast(100, TimeUnit.MILLISECONDS).until(() -> true);
         testApiSinkServer.check();
     }
 }
