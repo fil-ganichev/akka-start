@@ -10,7 +10,7 @@ public class ErrorProcessor {
 
     private Consumer<Exception> errorListener;
 
-    public Exception onError(Exception e) throws Exception {
+    public Exception onError(Exception e) {
         if (errorListener != null) {
             errorListener.accept(e);
         }

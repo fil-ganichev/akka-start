@@ -41,7 +41,7 @@ public class ApiProxiedServerImpl extends ApiServerBase implements ProxiedStage 
     }
 
     public static ApiProxiedServerImpl of(Map<Class<?>, Object> api) {
-        return new ApiProxiedServerImpl(api.keySet().stream().collect(Collectors.toList())
+        return new ApiProxiedServerImpl(new ArrayList<>(api.keySet())
                 .stream()
                 .collect(Collectors.toMap(clazz -> clazz,
                         clazz -> CallPoint.builder().api((Class<Object>) clazz)
@@ -81,8 +81,7 @@ public class ApiProxiedServerImpl extends ApiServerBase implements ProxiedStage 
         }
         final Set<Method> methods = new HashSet<>();
         final Class<?> serverClass = point.getApiServerImpl().getClass();
-        Arrays.asList(point.getApi().getMethods())
-                .stream()
+        Arrays.stream(point.getApi().getMethods())
                 .filter(method -> method.getReturnType().isAssignableFrom(CompletableFuture.class))
                 .forEach(method -> {
                     try {
@@ -106,15 +105,14 @@ public class ApiProxiedServerImpl extends ApiServerBase implements ProxiedStage 
     }
 
     private <T> Object findBean(Class<T> clazz, Map<String, Object> candidates) {
-        List<?> beanList = candidates.entrySet().stream()
-                .map(Map.Entry::getValue)
+        List<?> beanList = candidates.values().stream()
                 .filter(bean -> isApiBeanOf(bean, clazz))
                 .collect(Collectors.toList());
         if (beanList.isEmpty()) {
-            throw new CallPointNotFoundException(String.format("Beans of type %s anotated by %s not found",
+            throw new CallPointNotFoundException(String.format("Beans of type %s annotated by %s not found",
                     clazz.getName(), ApiBean.class.getName()));
         } else if (beanList.size() > 1) {
-            throw new CallPointNotFoundException(String.format("Too many beans of type %s anotated by %s found",
+            throw new CallPointNotFoundException(String.format("Too many beans of type %s annotated by %s found",
                     clazz.getName(), ApiBean.class.getName()));
         }
         return beanList.get(0);
@@ -135,7 +133,7 @@ public class ApiProxiedServerImpl extends ApiServerBase implements ProxiedStage 
         }
 
         @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        public Object invoke(Object proxy, Method method, Object[] args) {
             ArgsWrapper argsWrapper = ArgsWrapper.of(args);
             argsWrapper.setCallInfo(CallInfo.builder()
                     .apiMethod(findRealMethod(method))

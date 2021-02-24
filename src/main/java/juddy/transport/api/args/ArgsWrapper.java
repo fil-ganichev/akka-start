@@ -46,7 +46,7 @@ public final class ArgsWrapper {
     }
 
     public static <T> ArgsWrapper of(T value) {
-        return new ArgsWrapper(new ObjectApiCallArguments<T>(value));
+        return new ArgsWrapper(new ObjectApiCallArguments<>(value));
     }
 
     public static <T> ArgsWrapper of(T[] value) {

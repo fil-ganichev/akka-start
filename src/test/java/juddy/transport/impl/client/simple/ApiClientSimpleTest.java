@@ -26,6 +26,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -53,7 +54,7 @@ class ApiClientSimpleTest {
     private TcpServerTransportImpl tcpServerTransport;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         runTcpServer(tcpServerTransport, argsWrapper -> {
             ApiCallArguments apiCallArguments = argsWrapper.getApiCallArguments();
             String arg = (String) ((ArrayApiCallArguments) apiCallArguments).getValues()[0];
@@ -94,11 +95,11 @@ class ApiClientSimpleTest {
 
     @Bean
     public ApiClientImpl apiClient() {
-        return ApiClientImpl.of(Arrays.asList(TestApi.class));
+        return ApiClientImpl.of(Collections.singletonList(TestApi.class));
     }
 
     @Bean
-    public TcpClientTransportImpl tcpClientTransport(ApiClientImpl apiClient) throws Exception {
+    public TcpClientTransportImpl tcpClientTransport(ApiClientImpl apiClient) {
         return TcpClientTransportImpl.of(apiClient.getApiCallProcessor(), "127.0.0.1", 8889);
     }
 
@@ -108,7 +109,7 @@ class ApiClientSimpleTest {
     }
 
     private TcpServerTransportImpl runTcpServer(TcpServerTransportImpl tcpServerTransport,
-                                                UnaryOperator<ArgsWrapper> processor) throws Exception {
+                                                UnaryOperator<ArgsWrapper> processor) {
         tcpServerTransport.run(Flow.of(ArgsWrapper.class).map(processor::apply));
         return tcpServerTransport;
     }

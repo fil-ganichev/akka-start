@@ -38,12 +38,12 @@ class ApiServerManualConfigTest {
 
     // Получаем строки из TestSource, преобразуем из в вызов единственного метода API, проверяем результат
     @Test
-    void when_readFileSourceAndRunServerApi_then_ok() throws InterruptedException {
+    void when_readFileSourceAndRunServerApi_then_ok() {
         testApiSinkServer.reset();
         apiEngineFromSource.run();
         await().atMost(1, TimeUnit.SECONDS).until(
                 testApiSinkServer.processed(fileSourceHelper.getValues().size()));
-        testApiSinkServer.check(fileSourceHelper.getValues().toArray(new String[fileSourceHelper.getValues().size()]));
+        testApiSinkServer.check(fileSourceHelper.getValues().toArray(new String[0]));
     }
 
     // Вызываем сервер явно, получаем результат

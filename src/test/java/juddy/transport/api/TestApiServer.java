@@ -12,8 +12,7 @@ import java.util.stream.Collectors;
 public class TestApiServer {
 
     public List<String> split(String source) {
-        return Arrays.asList(source.split(","))
-                .stream()
+        return Arrays.stream(source.split(","))
                 .map(String::trim)
                 .collect(Collectors.toList());
     }

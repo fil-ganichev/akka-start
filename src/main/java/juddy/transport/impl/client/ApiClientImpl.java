@@ -93,7 +93,7 @@ public class ApiClientImpl extends StageBase implements ApiClient, ProxiedStage 
     protected class DefaultApiProxy implements InvocationHandler {
 
         @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        public Object invoke(Object proxy, Method method, Object[] args) {
             ArgsWrapper argsWrapper = ArgsWrapper.of(args);
             argsWrapper.setCallInfo(CallInfo.builder()
                     .apiMethod(method)

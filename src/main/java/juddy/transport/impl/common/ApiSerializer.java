@@ -22,16 +22,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ApiSerialilizer {
+public class ApiSerializer {
 
     private final ObjectMapper objectMapper;
     private final Map<String, List<TypeReference<?>>> apiTypes = new HashMap<>();
 
-    public ApiSerialilizer(ObjectMapper objectMapper) {
+    public ApiSerializer(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
-    public ApiSerialilizer() {
+    public ApiSerializer() {
         this(ObjectMapperUtils.createObjectMapper());
     }
 

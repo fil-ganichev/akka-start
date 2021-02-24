@@ -10,7 +10,7 @@ import juddy.transport.api.args.ArgsWrapper;
 import juddy.transport.api.net.ApiTransport;
 import juddy.transport.impl.args.Message;
 import juddy.transport.impl.common.ApiCallProcessor;
-import juddy.transport.impl.common.ApiSerialilizer;
+import juddy.transport.impl.common.ApiSerializer;
 import juddy.transport.impl.common.StageBase;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -22,7 +22,7 @@ public class TcpClientTransportImpl extends StageBase implements ApiTransport {
     private final int port;
     private ApiCallProcessor apiCallProcessor;
     @Autowired
-    private ApiSerialilizer apiSerialilizer;
+    private ApiSerializer apiSerializer;
 
     protected TcpClientTransportImpl(ApiCallProcessor apiCallProcessor, String host, int port) {
         this.apiCallProcessor = apiCallProcessor;
@@ -51,11 +51,11 @@ public class TcpClientTransportImpl extends StageBase implements ApiTransport {
                 Flow.of(ByteString.class)
                         .via(JsonFraming.objectScanner(Integer.MAX_VALUE))
                         .map(ByteString::utf8String)
-                        .map(apiSerialilizer::messageFromString)
+                        .map(apiSerializer::messageFromString)
                         .log(logTitle("incoming message"))
                         .map(message -> {
                             if (message.getMessageType() == Message.MessageType.REQUEST) {
-                                ArgsWrapper argsWrapper = apiSerialilizer.parameterFromBase64String(
+                                ArgsWrapper argsWrapper = apiSerializer.parameterFromBase64String(
                                         message.getBase64Json());
                                 apiCallProcessor.response(argsWrapper);
                             }
@@ -64,8 +64,8 @@ public class TcpClientTransportImpl extends StageBase implements ApiTransport {
 
         return Flow.of(ArgsWrapper.class)
                 .map(this::next)
-                .map(apiSerialilizer::messageFromArgs)
-                .map(apiSerialilizer::messageToString)
+                .map(apiSerializer::messageFromArgs)
+                .map(apiSerializer::messageToString)
                 .log(logTitle("outgoing message"))
                 .map(ByteString::fromString)
                 .via(connection)

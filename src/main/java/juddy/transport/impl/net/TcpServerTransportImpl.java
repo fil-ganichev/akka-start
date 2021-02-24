@@ -11,7 +11,7 @@ import akka.util.ByteString;
 import juddy.transport.api.args.ArgsWrapper;
 import juddy.transport.api.net.ApiTransport;
 import juddy.transport.impl.args.Message;
-import juddy.transport.impl.common.ApiSerialilizer;
+import juddy.transport.impl.common.ApiSerializer;
 import juddy.transport.impl.common.StageBase;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -22,7 +22,7 @@ public final class TcpServerTransportImpl extends StageBase implements ApiTransp
     private final String host;
     private final int port;
     @Autowired
-    private ApiSerialilizer apiSerialilizer;
+    private ApiSerializer apiSerializer;
 
     private TcpServerTransportImpl(String host, int port) {
         this.host = host;
@@ -41,21 +41,21 @@ public final class TcpServerTransportImpl extends StageBase implements ApiTransp
         ActorSystem actorSystem = getApiEngineContext().getActorSystem();
         Source<Tcp.IncomingConnection, CompletionStage<Tcp.ServerBinding>> connections =
                 Tcp.get(actorSystem).bind(host, port);
-        Message welcomeMsg = apiSerialilizer.welcome();
+        Message welcomeMsg = apiSerializer.welcome();
         Source<Message, NotUsed> welcome = Source.single(welcomeMsg);
 
         Flow<ByteString, ByteString, NotUsed> serverLogic = Flow.of(ByteString.class)
                 .via(JsonFraming.objectScanner(Integer.MAX_VALUE))
                 .map(ByteString::utf8String)
-                .map(apiSerialilizer::messageFromString)
+                .map(apiSerializer::messageFromString)
                 .log(logTitle("incoming message"))
                 .map(Message::getBase64Json)
-                .map(apiSerialilizer::parameterFromBase64String)
+                .map(apiSerializer::parameterFromBase64String)
                 .via(graphProcessor)
                 .map(this::checkError)
-                .map(apiSerialilizer::messageFromArgs)
+                .map(apiSerializer::messageFromArgs)
                 .merge(welcome)
-                .map(apiSerialilizer::messageToString)
+                .map(apiSerializer::messageToString)
                 .log(logTitle("outgoing message"))
                 .map(ByteString::fromString)
                 .mapError(new PFBuilder<Throwable, Throwable>()

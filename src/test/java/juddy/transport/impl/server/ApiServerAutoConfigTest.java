@@ -63,7 +63,7 @@ class ApiServerAutoConfigTest {
         await().atMost(1, TimeUnit.SECONDS).until(
                 testApiSinkServer.processed(fileSourceHelper.getValues().size()));
         testApiSinkServer.check(fileSourceHelper.getValues().toArray(
-                new String[fileSourceHelper.getValues().size()]));
+                new String[0]));
     }
 
     // Получаем строки, преобразуем из в вызов единственного метода API, далее еще один вызов API, проверяем результат

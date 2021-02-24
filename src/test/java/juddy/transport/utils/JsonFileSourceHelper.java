@@ -1,6 +1,6 @@
 package juddy.transport.utils;
 
-import juddy.transport.impl.common.ApiSerialilizer;
+import juddy.transport.impl.common.ApiSerializer;
 import juddy.transport.impl.source.JsonFileSource;
 import lombok.Getter;
 
@@ -18,12 +18,12 @@ public class JsonFileSourceHelper<T> {
     private final JsonFileSource jsonFileSource;
     private final List<T> values;
 
-    public JsonFileSourceHelper(Class<T> clazz, ApiSerialilizer apiSerialilizer)
+    public JsonFileSourceHelper(Class<T> clazz, ApiSerializer apiSerializer)
             throws IOException, URISyntaxException {
         Path testFile = Paths.get(ClassLoader.getSystemResource("person-source.json").toURI());
         values = Files.readAllLines(testFile)
                 .stream()
-                .map(s -> apiSerialilizer.fromString(s, clazz))
+                .map(s -> apiSerializer.fromString(s, clazz))
                 .collect(Collectors.toList());
         jsonFileSource = new JsonFileSource(testFile, clazz);
     }

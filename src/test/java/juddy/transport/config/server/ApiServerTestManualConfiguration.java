@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Import;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Arrays;
+import java.util.Collections;
 
 import static org.mockito.Mockito.spy;
 
@@ -31,22 +31,22 @@ public class ApiServerTestManualConfiguration {
 
     @Bean
     public ApiProxiedServerImpl apiServer() {
-        return ApiProxiedServerImpl.of(Arrays.asList(TestApi.class));
+        return ApiProxiedServerImpl.of(Collections.singletonList(TestApi.class));
     }
 
     @Bean
     public ApiProxiedServerImpl apiServerPhaseOne() {
-        return ApiProxiedServerImpl.of(Arrays.asList(TestApiPhaseOne.class));
+        return ApiProxiedServerImpl.of(Collections.singletonList(TestApiPhaseOne.class));
     }
 
     @Bean
     public ApiServerImpl apiServerPhaseTwo() {
-        return ApiServerImpl.of(Arrays.asList(TestApiPhaseTwo.class));
+        return ApiServerImpl.of(Collections.singletonList(TestApiPhaseTwo.class));
     }
 
     @Bean
     public ApiServerImpl sinkServer() {
-        return ApiServerImpl.of(Arrays.asList(TestApiSink.class));
+        return ApiServerImpl.of(Collections.singletonList(TestApiSink.class));
     }
 
     @Bean

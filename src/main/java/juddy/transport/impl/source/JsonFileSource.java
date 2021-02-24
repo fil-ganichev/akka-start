@@ -2,7 +2,7 @@ package juddy.transport.impl.source;
 
 import juddy.transport.api.args.ArgsWrapper;
 import juddy.transport.api.dto.StringApiCallArguments;
-import juddy.transport.impl.common.ApiSerialilizer;
+import juddy.transport.impl.common.ApiSerializer;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ public class JsonFileSource<T> extends FileSource {
     private final Class<T> objectClass;
     @Autowired
     @Getter(AccessLevel.PROTECTED)
-    private ApiSerialilizer apiSerialilizer;
+    private ApiSerializer apiSerializer;
 
     public JsonFileSource(FileSourceProperties fileSourceProperties, Class<T> objectClass) {
         super(fileSourceProperties);
@@ -37,7 +37,7 @@ public class JsonFileSource<T> extends FileSource {
 
     @Override
     public UnaryOperator<ArgsWrapper> getArgsConverter() {
-        return argsWrapper -> ArgsWrapper.of(apiSerialilizer.fromString(
+        return argsWrapper -> ArgsWrapper.of(apiSerializer.fromString(
                 ((StringApiCallArguments) argsWrapper.getApiCallArguments()).getValue(),
                 objectClass));
     }

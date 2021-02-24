@@ -27,7 +27,7 @@ public class ApiServerImpl extends ApiServerBase implements ApiServer {
     }
 
     public static ApiServerImpl of(Map<Class<?>, Object> api) {
-        return new ApiServerImpl(api.keySet().stream().collect(Collectors.toList())
+        return new ApiServerImpl(new ArrayList<>(api.keySet())
                 .stream()
                 .collect(Collectors.toMap(clazz -> clazz,
                         clazz -> CallPoint.builder().api((Class<Object>) clazz)
@@ -59,10 +59,10 @@ public class ApiServerImpl extends ApiServerBase implements ApiServer {
         Set<String> beanNames = beans.keySet();
         beanNames.retainAll(candidates);
         if (beanNames.isEmpty()) {
-            throw new CallPointNotFoundException(String.format("No beans of type %s anotated by %s found",
+            throw new CallPointNotFoundException(String.format("No beans of type %s annotated by %s found",
                     clazz.getName(), ApiBean.class.getName()));
         } else if (beanNames.size() > 1) {
-            throw new CallPointNotFoundException(String.format("Too many beans of type %s anotated by %s found",
+            throw new CallPointNotFoundException(String.format("Too many beans of type %s annotated by %s found",
                     clazz.getName(), ApiBean.class.getName()));
         }
         return (T) getApplicationContext().getBean(String.valueOf(beanNames.toArray()[0]));
@@ -75,9 +75,7 @@ public class ApiServerImpl extends ApiServerBase implements ApiServer {
                     getApplicationContext().getBeanNamesForAnnotation(ApiBean.class)));
             point.setApiServerImpl(findBean(point.getApi(), beanNameCandidates));
         }
-        Set<Method> methods = Arrays.asList(point.getApi().getMethods())
-                .stream()
-                .collect(Collectors.toSet());
+        Set<Method> methods = new HashSet<>(Arrays.asList(point.getApi().getMethods()));
         point.setMethods(methods);
     }
 

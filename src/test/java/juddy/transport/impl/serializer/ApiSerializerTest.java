@@ -6,7 +6,7 @@ import juddy.transport.api.TestApiCars;
 import juddy.transport.api.args.ArgsWrapper;
 import juddy.transport.api.args.CallInfo;
 import juddy.transport.impl.args.Message;
-import juddy.transport.impl.common.ApiSerialilizer;
+import juddy.transport.impl.common.ApiSerializer;
 import juddy.transport.impl.serializer.dto.Car;
 import juddy.transport.impl.serializer.dto.Document;
 import juddy.transport.impl.serializer.dto.Driver;
@@ -16,9 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,48 +26,48 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SuppressWarnings({"checkstyle:methodName", "checkstyle:throwsCount"})
-class ApiSerialilizerTest {
+class ApiSerializerTest {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    private final ApiSerialilizer apiSerialilizer = new ApiSerialilizer();
+    private final ApiSerializer apiSerializer = new ApiSerializer();
 
     @Test
-    void when_serializeArgsWrapper_then_ok() throws NoSuchMethodException, UnsupportedEncodingException {
+    void when_serializeArgsWrapper_then_ok() throws NoSuchMethodException {
         ArgsWrapper argsWrapper = argsWrapperSimple(new Object[]
                 {"Москва", "Минск", "Киев", "Таллин", "Рига", "Кишинев"});
-        String serialized = apiSerialilizer.serializeArgs(argsWrapper);
-        ArgsWrapper fromSerialized = apiSerialilizer.parameterFromBase64String(serialized);
+        String serialized = apiSerializer.serializeArgs(argsWrapper);
+        ArgsWrapper fromSerialized = apiSerializer.parameterFromBase64String(serialized);
         assertThat(fromSerialized).isEqualTo(argsWrapper);
     }
 
     @Test
     void when_resultWithObjectAsArray_then_ok() throws IOException, URISyntaxException, NoSuchMethodException {
         String messageStr = getMessageJson("01");
-        Message message = apiSerialilizer.messageFromString(messageStr);
-        ArgsWrapper argsWrapper = apiSerialilizer.parameterFromBase64String(message.getBase64Json());
-        assertThat((List) argsWrapper.getApiCallArguments().getResult())
+        Message message = apiSerializer.messageFromString(messageStr);
+        ArgsWrapper argsWrapper = apiSerializer.parameterFromBase64String(message.getBase64Json());
+        assertThat((List<String>) argsWrapper.getApiCallArguments().getResult())
                 .containsExactly("Москва", "Минск", "Киев", "Таллин", "Рига", "Кишинев");
     }
 
     @Test
     void when_serializeArgsWrapperWithArrayOfObjects_then_ok()
-            throws NoSuchMethodException, UnsupportedEncodingException {
-        apiSerialilizer.registerApiTypes("juddy.transport.api.TestApiCars.registerCar",
+            throws NoSuchMethodException {
+        apiSerializer.registerApiTypes("juddy.transport.api.TestApiCars.registerCar",
                 Arrays.asList(
                         new TypeReference<Car>() {
                         },
                         new TypeReference<List<Driver>>() {
                         }));
         ArgsWrapper argsWrapper = argsWrapperComplexType(arrayOfObjects());
-        String serialized = apiSerialilizer.serializeArgs(argsWrapper);
-        ArgsWrapper fromSerialized = apiSerialilizer.parameterFromBase64String(serialized);
+        String serialized = apiSerializer.serializeArgs(argsWrapper);
+        ArgsWrapper fromSerialized = apiSerializer.parameterFromBase64String(serialized);
         assertThat(fromSerialized).isEqualTo(argsWrapper);
     }
 
     private String getMessageJson(String testNum) throws URISyntaxException, IOException {
         Path testFile = Paths.get(ClassLoader.getSystemResource(
                 String.format("apiSerializerTest/case%s.json", testNum)).toURI());
-        return new String(Files.readAllBytes(testFile), Charset.forName("utf-8"));
+        return Files.readString(testFile);
     }
 
     private Object[] arrayOfObjects() {

@@ -1,20 +1,15 @@
 package juddy.transport.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
-@AllArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 public class StringApiCallArguments extends ObjectApiCallArguments<String> {
 
-    private String value;
-
-    @Override
-    public Object getResult() {
-        return value;
+    public StringApiCallArguments(String value) {
+        super(value);
     }
 
     @Override

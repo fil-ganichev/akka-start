@@ -65,9 +65,9 @@ public final class ApiEngineImpl implements ApiEngine {
     }
 
     public Object findServerBean(Class<?> clazz) {
-        for (int i = 0; i < stages.size(); i++) {
-            if (stages.get(i) instanceof ApiServerImpl) {
-                Object bean = ((ApiServerImpl) stages.get(i)).getBean(clazz);
+        for (StageBase stage : stages) {
+            if (stage instanceof ApiServerImpl) {
+                Object bean = ((ApiServerImpl) stage).getBean(clazz);
                 if (bean != null) {
                     return bean;
                 }

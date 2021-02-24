@@ -11,8 +11,7 @@ public class TestApiSimpleSplitterServer implements TestApiSimpleSplitter {
 
     @Override
     public List<String> split(String source) {
-        return Arrays.asList(source.split(","))
-                .stream()
+        return Arrays.stream(source.split(","))
                 .map(String::trim)
                 .collect(Collectors.toList());
     }

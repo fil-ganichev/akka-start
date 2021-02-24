@@ -21,6 +21,6 @@ public class Message {
         WELCOME(0),
         REQUEST(1);
 
-        private int type;
+        private final int type;
     }
 }

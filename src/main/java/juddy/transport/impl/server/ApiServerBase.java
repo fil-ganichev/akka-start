@@ -84,7 +84,7 @@ public abstract class ApiServerBase extends StageBase implements ApiServer, Appl
 
     private List<Object> prepareArgValues(Method method, Object parameters) {
         return Arrays.stream(method.getParameterAnnotations())
-                .map(annotattions -> Arrays.stream(annotattions)
+                .map(annotations -> Arrays.stream(annotations)
                         .filter(annotattion -> annotattion.annotationType().equals(ApiArg.class))
                         .findFirst()
                         .orElseThrow(() -> new ApiCallException(
@@ -134,7 +134,7 @@ public abstract class ApiServerBase extends StageBase implements ApiServer, Appl
                 if (callPoint.getMethods().size() == 1) {
                     argsWrapper.setCallInfo(CallInfo.builder()
                             .apiClass((Class<Object>) callPoint.getApi())
-                            .apiMethod((Method) callPoint.getMethods().stream()
+                            .apiMethod(callPoint.getMethods().stream()
                                     .findFirst()
                                     .orElseThrow(() -> new ApiException("Method list is empty in call point")))
                             .build());
