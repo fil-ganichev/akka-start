@@ -34,14 +34,14 @@
     <module name="SuppressionFilter">
         <property name="file" value="${checkstyle.suppressions.file}"/>
     </module>
-    <!-- Tone down the checking for test code -->
+    <!-- Tone down the checking for juddy.transport.test code -->
     <module name="SuppressionSingleFilter">
         <property name="checks" value="JavadocPackage"/>
-        <property name="files" value=".*[\\/]src[\\/](test|it)[\\/]"/>
+        <property name="files" value=".*[\\/]src[\\/](juddy.transport.test|it)[\\/]"/>
     </module>
     <module name="SuppressionSingleFilter">
         <property name="checks" value="JavadocMethod"/>
-        <property name="files" value=".*[\\/]src[\\/](test|it)[\\/].*(?&lt;!Support)\.java"/>
+        <property name="files" value=".*[\\/]src[\\/](juddy.transport.test|it)[\\/].*(?&lt;!Support)\.java"/>
     </module>
     <module name="SuppressWarningsFilter"/>
     <module name="SuppressWithPlainTextCommentFilter">
@@ -287,7 +287,7 @@
         <module name="VisibilityModifier">
             <property name="severity" value="warning"/>
             <property name="ignoreAnnotationCanonicalNames"
-                      value="org.junit.Rule, org.junit.jupiter.api.io.TempDir"/>
+                      value="org.junit.Rule, org.junit.jupiter.juddy.transport.api.io.TempDir"/>
         </module>
 
         <!-- Coding -->
@@ -423,36 +423,36 @@
             <property name="checks" value="IllegalCatch"/>
         </module>
         <module name="SuppressionXpathSingleFilter">
-            <property name="files" value=".*[\\/]src[\\/]test[\\/]"/>
+            <property name="files" value=".*[\\/]src[\\/]juddy.transport.test[\\/]"/>
             <property name="checks" value="EmptyBlock"/>
         </module>
         <module name="SuppressionXpathSingleFilter">
-            <property name="files" value=".*[\\/]src[\\/](test|it)[\\/]"/>
+            <property name="files" value=".*[\\/]src[\\/](juddy.transport.test|it)[\\/]"/>
             <property name="checks" value="JavadocVariable"/>
         </module>
         <module name="SuppressionXpathSingleFilter">
-            <property name="files" value=".*[\\/]src[\\/](test|it)[\\/]"/>
+            <property name="files" value=".*[\\/]src[\\/](juddy.transport.test|it)[\\/]"/>
             <property name="checks" value="JavadocType"/>
         </module>
         <module name="SuppressionXpathSingleFilter">
-            <property name="files" value=".*[\\/]src[\\/](test|it)[\\/]"/>
+            <property name="files" value=".*[\\/]src[\\/](juddy.transport.test|it)[\\/]"/>
             <property name="checks" value="MagicNumber"/>
         </module>
         <module name="SuppressionXpathSingleFilter">
-            <property name="files" value=".*[\\/]src[\\/](test|it)[\\/]"/>
+            <property name="files" value=".*[\\/]src[\\/](juddy.transport.test|it)[\\/]"/>
             <property name="checks" value="AvoidStaticImport"/>
         </module>
         <module name="SuppressionXpathSingleFilter">
-            <property name="files" value=".*[\\/]src[\\/](test|it)[\\/]"/>
+            <property name="files" value=".*[\\/]src[\\/](juddy.transport.test|it)[\\/]"/>
             <property name="checks" value="WriteTag"/>
         </module>
         <module name="SuppressionXpathSingleFilter">
-            <property name="files" value=".*[\\/]src[\\/](test|it)[\\/]"/>
+            <property name="files" value=".*[\\/]src[\\/](juddy.transport.test|it)[\\/]"/>
             <property name="checks" value="MethodCount"/>
         </module>
         <!-- Fixing these cases will decrease code readability -->
         <module name="SuppressionXpathSingleFilter">
-            <property name="files" value=".*[\\/]src[\\/](test|it)[\\/]"/>
+            <property name="files" value=".*[\\/]src[\\/](juddy.transport.test|it)[\\/]"/>
             <property name="checks" value="MultipleStringLiterals"/>
         </module>
         <module name="SuppressWithNearbyCommentFilter">
