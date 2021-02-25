@@ -1,4 +1,4 @@
-package juddy.transport.utils;
+package juddy.transport.impl.test.source;
 
 import juddy.transport.impl.source.FileSource;
 import lombok.Getter;
@@ -17,8 +17,8 @@ public class FileSourceHelper {
     private final FileSource fileSource;
     private final List<String> values;
 
-    public FileSourceHelper() throws IOException, URISyntaxException {
-        Path testFile = Paths.get(ClassLoader.getSystemResource("api-calls-source.txt").toURI());
+    public FileSourceHelper(String fileName) throws IOException, URISyntaxException {
+        Path testFile = Paths.get(ClassLoader.getSystemResource(fileName).toURI());
         values = Files.readAllLines(testFile)
                 .stream()
                 .map(s -> s.concat("\r"))

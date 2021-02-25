@@ -1,4 +1,4 @@
-package juddy.transport.source;
+package juddy.transport.utils;
 
 import juddy.transport.api.TestApiGenderPerson;
 import juddy.transport.api.args.ArgsWrapper;
@@ -11,9 +11,9 @@ import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.function.UnaryOperator;
 
-public class CustomJsonFileSource<T> extends JsonFileSource<T> {
+public class GenderPersonSource extends JsonFileSource<TestApiGenderPerson.Person> {
 
-    public CustomJsonFileSource(Path filePath, Class<T> objectClass) {
+    public GenderPersonSource(Path filePath, Class<TestApiGenderPerson.Person> objectClass) {
         super(filePath, objectClass);
     }
 
@@ -32,8 +32,9 @@ public class CustomJsonFileSource<T> extends JsonFileSource<T> {
 
     private Method getMethod(ArgsWrapper jsonArgsWrapper) {
         try {
-            ObjectApiCallArguments parameter = (ObjectApiCallArguments) jsonArgsWrapper.getApiCallArguments();
-            TestApiGenderPerson.Person person = (TestApiGenderPerson.Person) parameter.getValue();
+            ObjectApiCallArguments<TestApiGenderPerson.Person> parameter =
+                    (ObjectApiCallArguments<TestApiGenderPerson.Person>) jsonArgsWrapper.getApiCallArguments();
+            TestApiGenderPerson.Person person = parameter.getValue();
             if (person.getGender() == TestApiGenderPerson.Gender.MALE) {
                 return TestApiGenderPerson.class.getMethod("getMaleFio", TestApiGenderPerson.Person.class);
             } else {

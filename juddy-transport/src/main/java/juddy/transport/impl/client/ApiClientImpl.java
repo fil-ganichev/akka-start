@@ -48,7 +48,7 @@ public class ApiClientImpl extends StageBase implements ApiClient, ProxiedStage 
     @Override
     protected Flow<ArgsWrapper, ArgsWrapper, NotUsed> createConnector() {
         return Flow.of(ArgsWrapper.class).merge(apiCallProcessor.clientApiSource())
-                .log(logTitle("juddy.transport.api call arguments"))
+                .log(logTitle("api call arguments"))
                 .map(this::next)
                 .map(this::checkError)
                 .mapError(new PFBuilder<Throwable, Throwable>()

@@ -1,4 +1,4 @@
-package juddy.transport.test;
+package juddy.transport.test.sink;
 
 import juddy.transport.api.common.Api;
 

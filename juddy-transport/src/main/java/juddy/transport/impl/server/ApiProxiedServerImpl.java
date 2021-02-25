@@ -58,10 +58,10 @@ public class ApiProxiedServerImpl extends ApiServerBase implements ProxiedStage 
     protected Flow<ArgsWrapper, ArgsWrapper, NotUsed> createConnector() {
         return Flow.of(ArgsWrapper.class)
                 .merge(apiCallProcessor.clientApiSource())
-                .log(logTitle("juddy.transport.api call arguments"))
+                .log(logTitle("api call arguments"))
                 .map(this::next)
                 .map(this::call)
-                .log(logTitle("juddy.transport.api call result"))
+                .log(logTitle("api call result"))
                 .map(this::response)
                 .map(this::checkError)
                 .mapError(new PFBuilder<Throwable, Throwable>()
@@ -128,7 +128,7 @@ public class ApiProxiedServerImpl extends ApiServerBase implements ProxiedStage 
     protected class DefaultApiProxy implements InvocationHandler {
 
         private final CallPoint<?> point;
-        private final ConcurrentHashMap<Method, Method> methodPoints = new ConcurrentHashMap<>();
+        private final Map<Method, Method> methodPoints = new ConcurrentHashMap<>();
 
         public DefaultApiProxy(CallPoint<?> point) {
             this.point = point;

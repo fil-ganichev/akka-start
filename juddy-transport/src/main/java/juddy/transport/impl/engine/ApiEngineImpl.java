@@ -19,11 +19,12 @@ import juddy.transport.impl.server.ApiServerImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 public final class ApiEngineImpl implements ApiEngine {
 
-    private final ArrayList<StageBase> stages = new ArrayList<>();
+    private final List<StageBase> stages = new ArrayList<>();
     private final ErrorProcessor errorProcessor = new ErrorProcessor();
     private Flow<ArgsWrapper, ArgsWrapper, NotUsed> lastFlow;
 

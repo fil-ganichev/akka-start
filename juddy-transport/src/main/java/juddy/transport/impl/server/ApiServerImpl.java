@@ -37,10 +37,10 @@ public class ApiServerImpl extends ApiServerBase implements ApiServer {
     @Override
     protected Flow<ArgsWrapper, ArgsWrapper, NotUsed> createConnector() {
         return Flow.of(ArgsWrapper.class)
-                .log(logTitle("juddy.transport.api call arguments"))
+                .log(logTitle("api call arguments"))
                 .map(this::next)
                 .map(this::call)
-                .log(logTitle("juddy.transport.api call result"))
+                .log(logTitle("api call result"))
                 .map(this::checkError)
                 .mapError(new PFBuilder<Throwable, Throwable>()
                         .match(Exception.class, this::onError)

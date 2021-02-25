@@ -95,6 +95,7 @@ public class ApiEngineFactory implements ApplicationContextAware {
             if (!applicationContext.containsBean(baseName.toString())) {
                 break;
             }
+            baseName.delete(clazz.getSimpleName().length(), baseName.length());
         }
         return baseName.toString();
     }

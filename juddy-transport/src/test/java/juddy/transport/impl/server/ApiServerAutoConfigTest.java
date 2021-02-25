@@ -1,13 +1,14 @@
 package juddy.transport.impl.server;
 
-import juddy.transport.api.*;
+import juddy.transport.api.TestApi;
+import juddy.transport.api.TestApiGenderPerson;
+import juddy.transport.api.TestApiPerson;
 import juddy.transport.config.server.ApiServerTestAutoConfiguration;
 import juddy.transport.impl.engine.ApiEngineImpl;
-import juddy.transport.test.TestApiSink;
-import juddy.transport.test.TestApiSinkServer;
-import juddy.transport.utils.CustomJsonFileSourceHelper;
-import juddy.transport.utils.FileSourceHelper;
-import juddy.transport.utils.JsonFileSourceHelper;
+import juddy.transport.impl.test.source.FileSourceHelper;
+import juddy.transport.impl.test.source.JsonFileSourceHelper;
+import juddy.transport.test.sink.TestApiSink;
+import juddy.transport.test.sink.TestApiSinkServer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -45,7 +46,7 @@ class ApiServerAutoConfigTest {
     @Autowired
     private JsonFileSourceHelper<TestApiPerson.Person> jsonFileSourceHelper;
     @Autowired
-    private CustomJsonFileSourceHelper<TestApiGenderPerson.Person> customJsonFileSourceHelper;
+    private JsonFileSourceHelper<TestApiGenderPerson.Person> customJsonFileSourceHelper;
 
     // Вызываем сервер явно, получаем результат
     @Test

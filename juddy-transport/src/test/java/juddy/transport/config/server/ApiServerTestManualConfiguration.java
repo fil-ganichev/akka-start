@@ -11,9 +11,9 @@ import juddy.transport.impl.engine.ApiEngineImpl;
 import juddy.transport.impl.server.ApiProxiedServerImpl;
 import juddy.transport.impl.server.ApiServerImpl;
 import juddy.transport.impl.source.FileSource;
-import juddy.transport.test.TestApiSink;
-import juddy.transport.test.TestApiSinkServer;
-import juddy.transport.utils.FileSourceHelper;
+import juddy.transport.test.sink.TestApiSink;
+import juddy.transport.test.sink.TestApiSinkServer;
+import juddy.transport.impl.test.source.FileSourceHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -71,7 +71,7 @@ public class ApiServerTestManualConfiguration {
 
     @Bean
     public FileSourceHelper fileSourceHelper() throws IOException, URISyntaxException {
-        return new FileSourceHelper();
+        return new FileSourceHelper("api-calls-source.txt");
     }
 
     @Bean

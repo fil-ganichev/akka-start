@@ -8,12 +8,11 @@ import juddy.transport.impl.engine.ApiEngineFactory;
 import juddy.transport.impl.engine.ApiEngineImpl;
 import juddy.transport.impl.source.FileSource;
 import juddy.transport.impl.source.JsonFileSource;
-import juddy.transport.source.CustomJsonFileSource;
-import juddy.transport.test.TestApiSink;
-import juddy.transport.test.TestApiSinkServer;
-import juddy.transport.utils.CustomJsonFileSourceHelper;
-import juddy.transport.utils.FileSourceHelper;
-import juddy.transport.utils.JsonFileSourceHelper;
+import juddy.transport.impl.test.source.FileSourceHelper;
+import juddy.transport.impl.test.source.JsonFileSourceHelper;
+import juddy.transport.test.sink.TestApiSink;
+import juddy.transport.test.sink.TestApiSinkServer;
+import juddy.transport.utils.GenderPersonSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -78,7 +77,7 @@ public class ApiServerTestAutoConfiguration {
 
     @Bean
     public ApiEngine apiEngineFromSourceWithMultiplyApi(ApiEngineFactory apiEngineFactory,
-                                                        CustomJsonFileSource customJsonFileSource) {
+                                                        GenderPersonSource customJsonFileSource) {
         return ApiEngineImpl.of(customJsonFileSource)
                 .connect(apiEngineFactory.apiServer(Map.of(TestApiGenderPerson.class, TestApiGenderPersonServer.class)))
                 .connect(apiEngineFactory.apiServer(Map.of(TestApiSink.class, TestApiSinkServer.class))
@@ -87,7 +86,7 @@ public class ApiServerTestAutoConfiguration {
 
     @Bean
     public FileSourceHelper fileSourceHelper() throws IOException, URISyntaxException {
-        return new FileSourceHelper();
+        return new FileSourceHelper("api-calls-source.txt");
     }
 
     @Bean
@@ -98,22 +97,25 @@ public class ApiServerTestAutoConfiguration {
     @Bean
     public JsonFileSourceHelper<TestApiPerson.Person> jsonFileSourceHelper(ApiSerializer apiSerializer)
             throws IOException, URISyntaxException {
-        return new JsonFileSourceHelper(TestApiPerson.Person.class, apiSerializer);
+        return new JsonFileSourceHelper<>("person-source.json", TestApiPerson.Person.class, apiSerializer);
     }
 
     @Bean
-    public JsonFileSource jsonFileSource(JsonFileSourceHelper jsonFileSourceHelper) {
+    public JsonFileSource<TestApiPerson.Person> jsonFileSource(
+            JsonFileSourceHelper<TestApiPerson.Person> jsonFileSourceHelper) {
         return jsonFileSourceHelper.getJsonFileSource();
     }
 
     @Bean
-    public CustomJsonFileSourceHelper<TestApiGenderPerson.Person> customJsonFileSourceHelper(
-            ApiSerializer apiSerializer) throws IOException, URISyntaxException {
-        return new CustomJsonFileSourceHelper(TestApiGenderPerson.Person.class, apiSerializer);
+    public JsonFileSourceHelper<TestApiGenderPerson.Person> customJsonFileSourceHelper(
+            ApiSerializer apiSerializer) throws Exception {
+        return new JsonFileSourceHelper<>("person-gender-source.json", TestApiGenderPerson.Person.class,
+                apiSerializer, GenderPersonSource.class);
     }
 
     @Bean
-    public CustomJsonFileSource customJsonFileSource(CustomJsonFileSourceHelper customJsonFileSourceHelper) {
-        return customJsonFileSourceHelper.getJsonFileSource();
+    public GenderPersonSource customJsonFileSource(
+            JsonFileSourceHelper<TestApiGenderPerson.Person> customJsonFileSourceHelper) {
+        return (GenderPersonSource) customJsonFileSourceHelper.getJsonFileSource();
     }
 }

@@ -3,7 +3,7 @@ package juddy.transport.impl.server;
 import juddy.transport.api.TestApi;
 import juddy.transport.api.TestApiPhaseOne;
 import juddy.transport.api.TestApiPhaseTwo;
-import juddy.transport.test.TestApiSinkServer;
+import juddy.transport.test.sink.TestApiSinkServer;
 import juddy.transport.config.server.ApiServerTestManualConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
