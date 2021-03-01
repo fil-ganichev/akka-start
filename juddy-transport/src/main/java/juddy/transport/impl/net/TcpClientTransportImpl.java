@@ -9,34 +9,55 @@ import akka.util.ByteString;
 import juddy.transport.api.args.ArgsWrapper;
 import juddy.transport.api.net.ApiTransport;
 import juddy.transport.impl.args.Message;
-import juddy.transport.impl.common.ApiCallProcessor;
-import juddy.transport.impl.common.ApiSerializer;
-import juddy.transport.impl.common.StageBase;
+import juddy.transport.impl.common.*;
+import juddy.transport.impl.publisher.ArgsWrapperSource;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.CompletionStage;
 
-public class TcpClientTransportImpl extends StageBase implements ApiTransport {
+public class TcpClientTransportImpl extends StageBase implements ApiTransport, NewSource {
 
+    @Getter
     private final String host;
+    @Getter
     private final int port;
+    @Getter
+    private TransportMode transportMode;
+
     private ApiCallProcessor apiCallProcessor;
+    private ArgsWrapperSource argsWrapperSource;
     @Autowired
     private ApiSerializer apiSerializer;
 
-    protected TcpClientTransportImpl(ApiCallProcessor apiCallProcessor, String host, int port) {
+    protected TcpClientTransportImpl(ApiCallProcessor apiCallProcessor, String host, int port,
+                                     TransportMode transportMode) {
         this.apiCallProcessor = apiCallProcessor;
         this.host = host;
         this.port = port;
+        this.transportMode = transportMode;
+        this.argsWrapperSource = new ArgsWrapperSource();
     }
 
     protected TcpClientTransportImpl(String host, int port) {
-        this.host = host;
-        this.port = port;
+        this(null, host, port, TransportMode.API_CALL);
+    }
+
+    protected TcpClientTransportImpl(String host, int port, TransportMode transportMode) {
+        this(null, host, port, transportMode);
     }
 
     public static TcpClientTransportImpl of(ApiCallProcessor apiCallProcessor, String host, int port) {
-        return new TcpClientTransportImpl(apiCallProcessor, host, port);
+        return new TcpClientTransportImpl(apiCallProcessor, host, port, TransportMode.API_CALL);
+    }
+
+    public static TcpClientTransportImpl of(ApiCallProcessor apiCallProcessor, String host, int port,
+                                            TransportMode transportMode) {
+        return new TcpClientTransportImpl(apiCallProcessor, host, port, transportMode);
+    }
+
+    public static TcpClientTransportImpl of(String host, int port, TransportMode transportMode) {
+        return new TcpClientTransportImpl(host, port, transportMode);
     }
 
     public static TcpClientTransportImpl of(String host, int port) {
@@ -47,19 +68,22 @@ public class TcpClientTransportImpl extends StageBase implements ApiTransport {
         Flow<ByteString, ByteString, CompletionStage<Tcp.OutgoingConnection>> connection =
                 Tcp.get(getApiEngineContext().getActorSystem()).outgoingConnection(host, port);
 
-        Flow<ByteString, ByteString, NotUsed> repl =
+        Flow<ByteString, ArgsWrapper, NotUsed> repl =
                 Flow.of(ByteString.class)
                         .via(JsonFraming.objectScanner(Integer.MAX_VALUE))
                         .map(ByteString::utf8String)
                         .map(apiSerializer::messageFromString)
                         .log(logTitle("incoming message"))
+                        .filter(message -> message.getMessageType() == Message.MessageType.REQUEST)
                         .map(message -> {
-                            if (message.getMessageType() == Message.MessageType.REQUEST) {
-                                ArgsWrapper argsWrapper = apiSerializer.parameterFromBase64String(
-                                        message.getBase64Json());
+                            ArgsWrapper argsWrapper = apiSerializer.parameterFromBase64String(
+                                    message.getBase64Json());
+                            if (transportMode == TransportMode.API_CALL) {
                                 apiCallProcessor.response(argsWrapper);
+                            } else if (transportMode == TransportMode.RESULT_AS_SOURCE) {
+                                argsWrapperSource.submit(argsWrapper);
                             }
-                            return ByteString.emptyByteString();
+                            return argsWrapper;
                         });
 
         return Flow.of(ArgsWrapper.class)
@@ -70,7 +94,6 @@ public class TcpClientTransportImpl extends StageBase implements ApiTransport {
                 .map(ByteString::fromString)
                 .via(connection)
                 .via(repl)
-                .map(s -> ArgsWrapper.of((String) null))
                 .map(this::checkError)
                 .mapError(new PFBuilder<Throwable, Throwable>()
                         .match(Exception.class, this::onError)
@@ -81,5 +104,17 @@ public class TcpClientTransportImpl extends StageBase implements ApiTransport {
     public TcpClientTransportImpl withApiCallProcessor(ApiCallProcessor apiCallProcessor) {
         this.apiCallProcessor = apiCallProcessor;
         return this;
+    }
+
+    @Override
+    public Flow<ArgsWrapper, ArgsWrapper, NotUsed> getNewSource() {
+        return Flow.of(ArgsWrapper.class)
+                .merge(argsWrapperSource.getApiSource())
+                .log(logTitle("submitted message"));
+    }
+
+    @Override
+    public boolean enabled() {
+        return transportMode == TransportMode.RESULT_AS_SOURCE;
     }
 }

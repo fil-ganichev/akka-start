@@ -2,6 +2,7 @@ package juddy.transport.impl.engine;
 
 import juddy.transport.impl.client.ApiClientImpl;
 import juddy.transport.impl.common.StageBase;
+import juddy.transport.impl.common.TransportMode;
 import juddy.transport.impl.error.ApiEngineException;
 import juddy.transport.impl.net.TcpClientTransportImpl;
 import juddy.transport.impl.net.TcpServerTransportImpl;
@@ -70,6 +71,12 @@ public class ApiEngineFactory implements ApplicationContextAware {
         return tcpClientTransport;
     }
 
+    public TcpClientTransportImpl tcpClientTransport(String host, int port, TransportMode transportMode) {
+        TcpClientTransportImpl tcpClientTransport = TcpClientTransportImpl.of(host, port, transportMode);
+        registerStageBean(tcpClientTransport);
+        return tcpClientTransport;
+    }
+
     public ApiClientImpl apiClient(List<Class<?>> api) {
         ApiClientImpl apiClientImpl = ApiClientImpl.of(api);
         registerStageBean(apiClientImpl);
@@ -89,13 +96,16 @@ public class ApiEngineFactory implements ApplicationContextAware {
     }
 
     private String generateBeanName(Class<?> clazz) {
-        StringBuilder baseName = new StringBuilder(clazz.getSimpleName());
+        String className = clazz.isAnonymousClass()
+                ? clazz.getName()
+                : clazz.getSimpleName();
+        StringBuilder baseName = new StringBuilder(className);
         for (int i = 1; true; i++) {
             baseName.append(i);
             if (!applicationContext.containsBean(baseName.toString())) {
                 break;
             }
-            baseName.delete(clazz.getSimpleName().length(), baseName.length());
+            baseName.delete(className.length(), baseName.length());
         }
         return baseName.toString();
     }

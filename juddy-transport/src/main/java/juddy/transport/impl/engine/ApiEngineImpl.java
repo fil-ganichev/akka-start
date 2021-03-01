@@ -9,7 +9,9 @@ import juddy.transport.api.common.ProxiedStage;
 import juddy.transport.api.engine.ApiEngine;
 import juddy.transport.impl.client.ApiClientImpl;
 import juddy.transport.impl.common.ApiCallProcessor;
+import juddy.transport.impl.common.NewSource;
 import juddy.transport.impl.common.StageBase;
+import juddy.transport.impl.common.TransportMode;
 import juddy.transport.impl.context.ApiEngineContextProvider;
 import juddy.transport.impl.error.ApiEngineException;
 import juddy.transport.impl.error.ErrorProcessor;
@@ -26,28 +28,31 @@ public final class ApiEngineImpl implements ApiEngine {
 
     private final List<StageBase> stages = new ArrayList<>();
     private final ErrorProcessor errorProcessor = new ErrorProcessor();
-    private Flow<ArgsWrapper, ArgsWrapper, NotUsed> lastFlow;
+    private List<Flow<ArgsWrapper, ArgsWrapper, NotUsed>> runnableFlows = new ArrayList<>();
 
     @Autowired
     private ApiEngineContextProvider apiEngineContextProvider;
 
     private ApiEngineImpl(StageBase stageBase) {
         stages.add(stageBase);
-        lastFlow = stageBase.getStageConnector();
+        runnableFlows.add(stageBase.getStageConnector());
     }
 
     @Override
     public ApiEngine run() {
         stages.forEach(StageBase::init);
-        if (isFromServer()) {
-            ((TcpServerTransportImpl) stages.get(0)).run(lastFlow);
-        } else {
-            Source.empty(ArgsWrapper.class).via(lastFlow)
-                    .map(this::checkError)
-                    .mapError(new PFBuilder<Throwable, Throwable>()
-                            .match(Exception.class, this::onError)
-                            .build())
-                    .run(apiEngineContextProvider.getApiEngineContext().getActorSystem());
+        for (int i = runnableFlows.size() - 1; i >= 0; i--) {
+            Flow<ArgsWrapper, ArgsWrapper, NotUsed> runnableFlow = runnableFlows.get(i);
+            if (i == 0 && isFromServer()) {
+                ((TcpServerTransportImpl) stages.get(0)).run(runnableFlow);
+            } else {
+                Source.empty(ArgsWrapper.class).via(runnableFlow)
+                        .map(this::checkError)
+                        .mapError(new PFBuilder<Throwable, Throwable>()
+                                .match(Exception.class, this::onError)
+                                .build())
+                        .run(apiEngineContextProvider.getApiEngineContext().getActorSystem());
+            }
         }
         return this;
     }
@@ -87,7 +92,7 @@ public final class ApiEngineImpl implements ApiEngine {
 
     public ApiEngineImpl connect(TcpClientTransportImpl tcpClientTransport) {
         ApiCallProcessor apiCallProcessor = findClientApiCallProcessor();
-        if (apiCallProcessor == null) {
+        if (apiCallProcessor == null && tcpClientTransport.getTransportMode() == TransportMode.API_CALL) {
             throw new ApiEngineException();
         }
         tcpClientTransport.withApiCallProcessor(apiCallProcessor);
@@ -117,12 +122,33 @@ public final class ApiEngineImpl implements ApiEngine {
     }
 
     private boolean isFromServer() {
-        return stages.get(0) instanceof TcpServerTransportImpl;
+        return firstStage() instanceof TcpServerTransportImpl;
     }
 
     private ApiEngineImpl connectStage(StageBase stageBase) {
-        lastFlow = lastFlow.via(stageBase.getStageConnector());
+        connectFlow(stageBase.getStageConnector());
+        if (isNewSource(stageBase)) {
+            newRunnableFlow(((NewSource) stageBase).getNewSource());
+        }
         stages.add(stageBase);
         return this;
+    }
+
+    private StageBase firstStage() {
+        return stages.get(0);
+    }
+
+    private boolean isNewSource(StageBase stageBase) {
+        return stageBase instanceof NewSource && ((NewSource) stageBase).enabled();
+    }
+
+    private void newRunnableFlow(Flow<ArgsWrapper, ArgsWrapper, NotUsed> connector) {
+        runnableFlows.add(connector);
+    }
+
+    private void connectFlow(Flow<ArgsWrapper, ArgsWrapper, NotUsed> connector) {
+        Flow<ArgsWrapper, ArgsWrapper, NotUsed> currentFlow = runnableFlows.get(runnableFlows.size() - 1);
+        currentFlow = currentFlow.via(connector);
+        runnableFlows.set(runnableFlows.size() - 1, currentFlow);
     }
 }

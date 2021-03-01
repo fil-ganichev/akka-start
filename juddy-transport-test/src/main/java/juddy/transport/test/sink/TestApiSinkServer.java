@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @ApiBean(TestApiSink.class)
 public class TestApiSinkServer implements TestApiSink {
 
-    private final List objects = new ArrayList();
+    private final List<Object> objects = new ArrayList<>();
     private final AtomicLong processed = new AtomicLong();
 
     @Override
