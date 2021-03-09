@@ -12,12 +12,13 @@ import juddy.transport.api.args.ArgsWrapper;
 import juddy.transport.api.net.ApiTransport;
 import juddy.transport.impl.args.Message;
 import juddy.transport.impl.common.ApiSerializer;
+import juddy.transport.impl.common.RunnableStage;
 import juddy.transport.impl.common.StageBase;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.CompletionStage;
 
-public final class TcpServerTransportImpl extends StageBase implements ApiTransport {
+public final class TcpServerTransportImpl extends StageBase implements ApiTransport, RunnableStage {
 
     private final String host;
     private final int port;
@@ -37,6 +38,7 @@ public final class TcpServerTransportImpl extends StageBase implements ApiTransp
         return Flow.of(ArgsWrapper.class);
     }
 
+    @Override
     public void run(Flow<ArgsWrapper, ArgsWrapper, NotUsed> graphProcessor) {
         ActorSystem actorSystem = getApiEngineContext().getActorSystem();
         Source<Tcp.IncomingConnection, CompletionStage<Tcp.ServerBinding>> connections =

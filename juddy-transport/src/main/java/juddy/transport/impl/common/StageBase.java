@@ -6,6 +6,7 @@ import juddy.transport.api.args.ArgsWrapper;
 import juddy.transport.api.common.Stage;
 import juddy.transport.impl.context.ApiEngineContext;
 import juddy.transport.impl.context.ApiEngineContextProvider;
+import juddy.transport.impl.error.ApiEngineException;
 import juddy.transport.impl.error.ErrorProcessor;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -80,6 +81,11 @@ public abstract class StageBase implements Stage, InitializingBean {
     }
 
     protected ApiEngineContext getApiEngineContext() {
+        if (apiEngineContextProvider == null) {
+            throw new ApiEngineException("ApiEngineContext is not available. " +
+                    "Perhaps the instance is not a Spring bean " +
+                    "or the bean is not initialized");
+        }
         return apiEngineContextProvider.getApiEngineContext();
     }
 

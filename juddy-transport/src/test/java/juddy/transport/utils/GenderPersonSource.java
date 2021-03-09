@@ -5,7 +5,7 @@ import juddy.transport.api.args.ArgsWrapper;
 import juddy.transport.api.args.CallInfo;
 import juddy.transport.api.dto.ObjectApiCallArguments;
 import juddy.transport.impl.error.ApiCallException;
-import juddy.transport.impl.source.JsonFileSource;
+import juddy.transport.impl.source.file.JsonFileSource;
 
 import java.lang.reflect.Method;
 import java.nio.file.Path;

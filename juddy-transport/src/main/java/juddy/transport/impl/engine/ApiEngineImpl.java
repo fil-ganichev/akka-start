@@ -8,10 +8,7 @@ import juddy.transport.api.args.ArgsWrapper;
 import juddy.transport.api.common.ProxiedStage;
 import juddy.transport.api.engine.ApiEngine;
 import juddy.transport.impl.client.ApiClientImpl;
-import juddy.transport.impl.common.ApiCallProcessor;
-import juddy.transport.impl.common.NewSource;
-import juddy.transport.impl.common.StageBase;
-import juddy.transport.impl.common.TransportMode;
+import juddy.transport.impl.common.*;
 import juddy.transport.impl.context.ApiEngineContextProvider;
 import juddy.transport.impl.error.ApiEngineException;
 import juddy.transport.impl.error.ErrorProcessor;
@@ -43,8 +40,8 @@ public final class ApiEngineImpl implements ApiEngine {
         stages.forEach(StageBase::init);
         for (int i = runnableFlows.size() - 1; i >= 0; i--) {
             Flow<ArgsWrapper, ArgsWrapper, NotUsed> runnableFlow = runnableFlows.get(i);
-            if (i == 0 && isFromServer()) {
-                ((TcpServerTransportImpl) stages.get(0)).run(runnableFlow);
+            if (i == 0 && isRunnableStage()) {
+                ((RunnableStage) stages.get(0)).run(runnableFlow);
             } else {
                 Source.empty(ArgsWrapper.class).via(runnableFlow)
                         .map(this::checkError)
@@ -121,8 +118,8 @@ public final class ApiEngineImpl implements ApiEngine {
         return null;
     }
 
-    private boolean isFromServer() {
-        return firstStage() instanceof TcpServerTransportImpl;
+    private boolean isRunnableStage() {
+        return firstStage() instanceof RunnableStage;
     }
 
     private ApiEngineImpl connectStage(StageBase stageBase) {

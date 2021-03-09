@@ -10,7 +10,7 @@ import juddy.transport.impl.config.StartConfiguration;
 import juddy.transport.impl.engine.ApiEngineImpl;
 import juddy.transport.impl.server.ApiProxiedServerImpl;
 import juddy.transport.impl.server.ApiServerImpl;
-import juddy.transport.impl.source.FileSource;
+import juddy.transport.impl.source.file.FileSource;
 import juddy.transport.test.sink.TestApiSink;
 import juddy.transport.test.sink.TestApiSinkServer;
 import juddy.transport.impl.test.source.FileSourceHelper;
@@ -71,7 +71,7 @@ public class ApiServerTestManualConfiguration {
 
     @Bean
     public FileSourceHelper fileSourceHelper() throws IOException, URISyntaxException {
-        return new FileSourceHelper("api-calls-source.txt");
+        return new FileSourceHelper("fileSource/api-calls-source.txt");
     }
 
     @Bean

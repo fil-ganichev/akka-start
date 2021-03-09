@@ -1,4 +1,4 @@
-package juddy.transport.impl.source;
+package juddy.transport.impl.source.file;
 
 import lombok.Builder;
 import lombok.Data;

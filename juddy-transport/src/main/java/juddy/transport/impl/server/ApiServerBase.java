@@ -58,7 +58,7 @@ public abstract class ApiServerBase extends StageBase implements ApiServer, Appl
                 throw new IllegalCallPointException();
             } else if (parameterTypes.length == 1 && apiCallArguments instanceof ObjectApiCallArguments) {
                 Object result = method.invoke(bean, ((ObjectApiCallArguments) apiCallArguments).getValue());
-                return ArgsWrapper.of(result).withCorrelationId(argsWrapper.getCorrelationId());
+                return ArgsWrapper.of(result).copyDataFrom(argsWrapper);
             }
             Object result;
             if (apiCallArguments instanceof ArrayApiCallArguments) {
@@ -71,14 +71,14 @@ public abstract class ApiServerBase extends StageBase implements ApiServer, Appl
                 List<?> args = prepareArgValues(apiMethod, parameters);
                 result = method.invoke(bean, args.toArray(new Object[0]));
             }
-            return ArgsWrapper.of(result).withCorrelationId(argsWrapper.getCorrelationId());
+            return ArgsWrapper.of(result).copyDataFrom(argsWrapper);
         } catch (InvocationTargetException e) {
             Exception cause = e.getCause() instanceof Exception
                     ? (Exception) e.getCause()
                     : e;
-            return ArgsWrapper.of(cause).withCorrelationId(argsWrapper.getCorrelationId());
+            return ArgsWrapper.of(cause).copyDataFrom(argsWrapper);
         } catch (Exception e) {
-            return ArgsWrapper.of(e).withCorrelationId(argsWrapper.getCorrelationId());
+            return ArgsWrapper.of(e).copyDataFrom(argsWrapper);
         }
     }
 

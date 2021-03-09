@@ -25,6 +25,7 @@ public class TestApiSinkServer implements TestApiSink {
     }
 
     public void reset() {
+        processed.set(0);
         objects.clear();
     }
 

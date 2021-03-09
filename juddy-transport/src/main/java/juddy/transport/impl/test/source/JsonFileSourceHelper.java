@@ -1,7 +1,7 @@
 package juddy.transport.impl.test.source;
 
 import juddy.transport.impl.common.ApiSerializer;
-import juddy.transport.impl.source.JsonFileSource;
+import juddy.transport.impl.source.file.JsonFileSource;
 import lombok.Getter;
 
 import java.io.IOException;

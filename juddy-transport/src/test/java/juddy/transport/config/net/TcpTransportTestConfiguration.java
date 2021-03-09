@@ -10,7 +10,7 @@ import juddy.transport.impl.config.StartConfiguration;
 import juddy.transport.impl.engine.ApiEngineFactory;
 import juddy.transport.impl.engine.ApiEngineImpl;
 import juddy.transport.impl.server.ApiServerImpl;
-import juddy.transport.impl.source.JsonFileSource;
+import juddy.transport.impl.source.file.JsonFileSource;
 import juddy.transport.impl.test.source.JsonFileSourceHelper;
 import juddy.transport.test.sink.TestApiSink;
 import juddy.transport.test.sink.TestApiSinkServer;
@@ -66,7 +66,7 @@ public class TcpTransportTestConfiguration {
     @Bean
     public JsonFileSourceHelper<TestApiPerson.Person> jsonFileSourceHelper(ApiSerializer apiSerializer)
             throws IOException, URISyntaxException {
-        return new JsonFileSourceHelper<>("person-source.json", TestApiPerson.Person.class, apiSerializer);
+        return new JsonFileSourceHelper<>("fileSource/person-source.json", TestApiPerson.Person.class, apiSerializer);
     }
 
     @Bean

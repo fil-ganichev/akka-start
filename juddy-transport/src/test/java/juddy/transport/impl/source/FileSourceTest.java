@@ -8,6 +8,7 @@ import juddy.transport.api.args.ArgsWrapper;
 import juddy.transport.api.dto.StringApiCallArguments;
 import juddy.transport.impl.config.StartConfiguration;
 import juddy.transport.impl.context.ApiEngineContextProvider;
+import juddy.transport.impl.source.file.FileSource;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,7 +90,7 @@ class FileSourceTest {
     }
 
     private Path testFile() throws URISyntaxException {
-        return Paths.get(ClassLoader.getSystemResource("api-calls-source.txt").toURI());
+        return Paths.get(ClassLoader.getSystemResource("fileSource/api-calls-source.txt").toURI());
     }
 
     private ActorSystem getActorSystem() {

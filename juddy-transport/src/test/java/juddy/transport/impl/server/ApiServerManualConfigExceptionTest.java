@@ -3,8 +3,9 @@ package juddy.transport.impl.server;
 import juddy.transport.api.TestApi;
 import juddy.transport.api.TestApiPhaseOne;
 import juddy.transport.api.TestApiPhaseTwo;
-import juddy.transport.test.sink.TestApiSinkServer;
 import juddy.transport.config.server.ApiServerTestManualConfiguration;
+import juddy.transport.test.sink.TestApiSinkServer;
+import org.awaitility.core.ConditionTimeoutException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -47,7 +48,8 @@ class ApiServerManualConfigExceptionTest {
         when(testApiPhaseTwo.size(anyList())).thenThrow(new RuntimeException("Test"));
         List<String> cities = testApiPhaseOne.split("Москва, Минск, Киев, Таллин, Рига, Кишинев")
                 .get(500, TimeUnit.MILLISECONDS);
-        await().atLeast(100, TimeUnit.MILLISECONDS).until(() -> true);
+        assertThrows(ConditionTimeoutException.class,
+                () -> await().atMost(500, TimeUnit.MILLISECONDS).until(() -> false));
         testApiSinkServer.check();
     }
 }

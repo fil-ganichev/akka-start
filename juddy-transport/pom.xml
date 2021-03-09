@@ -13,9 +13,10 @@
     <artifactId>juddy-transport</artifactId>
 
     <properties>
-        <mockito.version>3.1.0</mockito.version>
         <akka.stream.version>2.6.8</akka.stream.version>
         <spring.version>5.2.8.RELEASE</spring.version>
+        <spring.kafka.version>2.6.6</spring.kafka.version>
+        <kafka.version>2.7.0</kafka.version>
     </properties>
 
     <dependencies>
@@ -36,6 +37,20 @@
             <artifactId>akka-stream-alpakka-file_2.13</artifactId>
             <version>2.0.2</version>
         </dependency>
+
+        <!-- akka kafka-->
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-stream-kafka_2.13</artifactId>
+            <version>2.0.7</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.kafka</groupId>
+                    <artifactId>kafka-clients</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
 
         <!--lombook-->
         <dependency>
@@ -106,20 +121,23 @@
             <artifactId>spring-context</artifactId>
             <version>${spring.version}</version>
         </dependency>
+
+        <!--kafka-->
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <version>${spring.version}</version>
-            <scope>test</scope>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka_2.13</artifactId>
+            <version>2.7.0</version>
         </dependency>
 
-        <!--juddy.transport.test-->
+        <!--juddy-test-->
         <dependency>
             <groupId>org.lokrusta</groupId>
             <artifactId>juddy-transport-test</artifactId>
             <version>${revision}</version>
             <scope>test</scope>
         </dependency>
+
+        <!--test-->
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
@@ -166,6 +184,28 @@
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-stream-testkit_2.13</artifactId>
             <version>${akka.stream.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!--spring-test-->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!--spring-kafka-test-->
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka-test</artifactId>
+            <version>${spring.kafka.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+            <version>${spring.kafka.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

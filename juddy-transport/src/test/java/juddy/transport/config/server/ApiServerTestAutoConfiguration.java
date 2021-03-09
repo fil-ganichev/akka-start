@@ -6,8 +6,8 @@ import juddy.transport.impl.common.ApiSerializer;
 import juddy.transport.impl.config.StartConfiguration;
 import juddy.transport.impl.engine.ApiEngineFactory;
 import juddy.transport.impl.engine.ApiEngineImpl;
-import juddy.transport.impl.source.FileSource;
-import juddy.transport.impl.source.JsonFileSource;
+import juddy.transport.impl.source.file.FileSource;
+import juddy.transport.impl.source.file.JsonFileSource;
 import juddy.transport.impl.test.source.FileSourceHelper;
 import juddy.transport.impl.test.source.JsonFileSourceHelper;
 import juddy.transport.test.sink.TestApiSink;
@@ -86,7 +86,7 @@ public class ApiServerTestAutoConfiguration {
 
     @Bean
     public FileSourceHelper fileSourceHelper() throws IOException, URISyntaxException {
-        return new FileSourceHelper("api-calls-source.txt");
+        return new FileSourceHelper("fileSource/api-calls-source.txt");
     }
 
     @Bean
@@ -97,7 +97,7 @@ public class ApiServerTestAutoConfiguration {
     @Bean
     public JsonFileSourceHelper<TestApiPerson.Person> jsonFileSourceHelper(ApiSerializer apiSerializer)
             throws IOException, URISyntaxException {
-        return new JsonFileSourceHelper<>("person-source.json", TestApiPerson.Person.class, apiSerializer);
+        return new JsonFileSourceHelper<>("fileSource/person-source.json", TestApiPerson.Person.class, apiSerializer);
     }
 
     @Bean
@@ -109,7 +109,7 @@ public class ApiServerTestAutoConfiguration {
     @Bean
     public JsonFileSourceHelper<TestApiGenderPerson.Person> customJsonFileSourceHelper(
             ApiSerializer apiSerializer) throws Exception {
-        return new JsonFileSourceHelper<>("person-gender-source.json", TestApiGenderPerson.Person.class,
+        return new JsonFileSourceHelper<>("fileSource/person-gender-source.json", TestApiGenderPerson.Person.class,
                 apiSerializer, GenderPersonSource.class);
     }
 
