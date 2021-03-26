@@ -12,6 +12,7 @@ import akka.stream.javadsl.Flow;
 import juddy.transport.impl.context.ApiEngineContext;
 
 import java.util.Set;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -43,7 +44,7 @@ public class SimpleKafkaSourceRunner implements KafkaSourceRunner {
     }
 
     @Override
-    public void shutDown() {
-        sourceControl.drainAndShutdown(shutDownThreadPool);
+    public CompletionStage<Done> shutDown() {
+        return sourceControl.drainAndShutdown(shutDownThreadPool);
     }
 }

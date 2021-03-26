@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
+import static juddy.transport.common.Constants.API_TIMEOUT_MS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static scala.collection.JavaConverters.asScala;
@@ -61,7 +62,7 @@ class FileSourceTest {
                             .replace("\r", ""));
                     steps.incrementAndGet();
                 }), getActorSystem());
-        await().atMost(1, TimeUnit.SECONDS).until(() -> steps.get() >= 3);
+        await().atMost(API_TIMEOUT_MS, TimeUnit.MILLISECONDS).until(() -> steps.get() >= 3);
         assertThat(expected).isEqualTo(target);
     }
 

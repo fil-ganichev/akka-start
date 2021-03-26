@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static juddy.transport.common.Constants.TCP_TIMEOUT_MS;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doThrow;
@@ -41,7 +42,7 @@ class TcpTransportTest {
         TestApiSinkServer testApiSinkServer = (TestApiSinkServer) apiEngineClient.findServerBean(TestApiSink.class);
         testApiSinkServer.reset();
         apiEngineClient.run();
-        await().atMost(1, TimeUnit.SECONDS).until(
+        await().atMost(TCP_TIMEOUT_MS, TimeUnit.MILLISECONDS).until(
                 testApiSinkServer.processed(jsonFileSourceHelper.getValues().size()));
         testApiSinkServer.check(fioArray(jsonFileSourceHelper.getValues()));
     }
@@ -52,7 +53,7 @@ class TcpTransportTest {
                 .findServerBean(TestApiSink.class);
         testApiSinkServer.reset();
         apiEngineClientResultAsSource.run();
-        await().atMost(1, TimeUnit.SECONDS).until(
+        await().atMost(TCP_TIMEOUT_MS, TimeUnit.MILLISECONDS).until(
                 testApiSinkServer.processed(jsonFileSourceHelper.getValues().size()));
         testApiSinkServer.check(fioArray(jsonFileSourceHelper.getValues()));
     }
@@ -66,7 +67,7 @@ class TcpTransportTest {
                     .findServerBean(TestApiSink.class);
             testApiSinkServer.reset();
             apiEngineClient.run();
-            await().atMost(1, TimeUnit.SECONDS).until(
+            await().atMost(TCP_TIMEOUT_MS, TimeUnit.MILLISECONDS).until(
                     testApiSinkServer.processed(1));
             testApiSinkServer.check(fioArray(jsonFileSourceHelper.getValues().subList(0, 1)));
         } finally {

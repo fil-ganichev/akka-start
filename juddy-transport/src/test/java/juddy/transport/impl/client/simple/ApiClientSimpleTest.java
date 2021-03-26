@@ -32,6 +32,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.UnaryOperator;
 
+import static juddy.transport.common.Constants.API_TIMEOUT_MS;
+import static juddy.transport.common.Constants.RPC_SYNC_TIMEOUT_MS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
@@ -77,7 +79,7 @@ class ApiClientSimpleTest {
                 }), getActorSystem());
         TestApi testApi = apiClient.getProxy(TestApi.class);
         testApi.split(source);
-        await().atMost(1, TimeUnit.SECONDS).until(() -> steps.get() >= 1);
+        await().atMost(API_TIMEOUT_MS, TimeUnit.MILLISECONDS).until(() -> steps.get() >= 1);
         assertThat(results.size()).isEqualTo(1);
         assertThat(results.get(0)).isEqualTo(new Object[]{source});
     }
@@ -89,7 +91,7 @@ class ApiClientSimpleTest {
                 .via(tcpClientTransport.getStageConnector())
                 .run(getActorSystem());
         TestApi testApi = apiClient.getProxy(TestApi.class);
-        List<String> results = testApi.split(source).get(500, TimeUnit.MILLISECONDS);
+        List<String> results = testApi.split(source).get(RPC_SYNC_TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertThat(results).containsExactly(source.split(", "));
     }
 

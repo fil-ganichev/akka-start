@@ -19,6 +19,7 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletionStage;
 
 public class KafkaSource extends ApiSourceImpl<String> implements RunnableStage {
 
@@ -113,11 +114,11 @@ public class KafkaSource extends ApiSourceImpl<String> implements RunnableStage 
                 topics);
     }
 
-    public void shutDown() {
+    public <T> CompletionStage<T> shutDown() {
         if (kafkaSourceRunner == null) {
             throw new KafkaException("Kafka source was not started. May be ApiEngine.run() was not called?");
         }
-        kafkaSourceRunner.shutDown();
+        return kafkaSourceRunner.shutDown();
     }
 
     private ArgsWrapper argsWrapperFrom(ConsumerMessage.CommittableMessage<String, String> committableMessage) {

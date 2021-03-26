@@ -60,8 +60,8 @@ public class RecoverableKafkaSourceRunner implements KafkaSourceRunner {
     }
 
     @Override
-    public void shutDown() {
-        restartSourceControl.get().drainAndShutdown(restartSourceCompletion,
+    public CompletionStage<Done> shutDown() {
+        return restartSourceControl.get().drainAndShutdown(restartSourceCompletion,
                 apiEngineContext.getActorSystem().getDispatcher());
     }
 
