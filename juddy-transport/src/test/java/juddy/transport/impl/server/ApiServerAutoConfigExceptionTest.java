@@ -9,7 +9,9 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
+import static juddy.transport.common.Constants.RPC_SYNC_TIMEOUT_MS;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD;
 
@@ -24,7 +26,8 @@ class ApiServerAutoConfigExceptionTest {
     @Test
     void when_callApiServerWithException_then_throwIt() {
         TestApi testApi = apiEngine.findProxy(TestApi.class);
-        assertThrows(ExecutionException.class, () -> testApi.split(null).get());
+        assertThrows(ExecutionException.class, () -> testApi.split(null)
+                .get(RPC_SYNC_TIMEOUT_MS, TimeUnit.MILLISECONDS));
         apiEngine.run();
     }
 }

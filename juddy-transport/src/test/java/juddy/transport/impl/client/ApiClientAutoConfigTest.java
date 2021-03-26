@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static juddy.transport.common.Constants.TCP_TIMEOUT_MS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SuppressWarnings({"checkstyle:methodName", "checkstyle:throwsCount"})
@@ -25,7 +26,7 @@ class ApiClientAutoConfigTest {
     void when_callRemoteApiServerViaTcp_then_ok() throws ExecutionException, InterruptedException, TimeoutException {
         TestApi testApi = apiEngineClient.findProxy(TestApi.class);
         List<String> cities = testApi.split("Москва, Минск, Киев, Таллин, Рига, Кишинев")
-                .get(1000, TimeUnit.MILLISECONDS);
+                .get(TCP_TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertThat(cities).containsExactly("Москва", "Минск", "Киев", "Таллин", "Рига", "Кишинев");
     }
 }

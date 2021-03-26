@@ -20,6 +20,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
+import static juddy.transport.common.Constants.API_TIMEOUT_MS;
+import static juddy.transport.common.Constants.RPC_SYNC_TIMEOUT_MS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
@@ -53,7 +55,7 @@ class ApiServerAutoConfigTest {
     void when_callApiServer_then_ok() throws ExecutionException, InterruptedException, TimeoutException {
         TestApi testApi = apiEngine.findProxy(TestApi.class);
         List<String> cities = testApi.split("Москва, Минск, Киев, Таллин, Рига, Кишинев")
-                .get(500, TimeUnit.MILLISECONDS);
+                .get(RPC_SYNC_TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertThat(cities).containsExactly("Москва", "Минск", "Киев", "Таллин", "Рига", "Кишинев");
     }
 
@@ -63,7 +65,7 @@ class ApiServerAutoConfigTest {
         TestApiSinkServer testApiSinkServer = (TestApiSinkServer) apiEngineFromSource.findServerBean(TestApiSink.class);
         testApiSinkServer.reset();
         apiEngineFromSource.run();
-        await().atMost(1, TimeUnit.SECONDS).until(
+        await().atMost(API_TIMEOUT_MS, TimeUnit.MILLISECONDS).until(
                 testApiSinkServer.processed(fileSourceHelper.getValues().size()));
         testApiSinkServer.check(fileSourceHelper.getValues().toArray(
                 new String[0]));
@@ -76,7 +78,7 @@ class ApiServerAutoConfigTest {
                 .findServerBean(TestApiSink.class);
         testApiSinkServer.reset();
         apiEngineFromSourceTwoPhases.run();
-        await().atMost(1, TimeUnit.SECONDS).until(
+        await().atMost(API_TIMEOUT_MS, TimeUnit.MILLISECONDS).until(
                 testApiSinkServer.processed(fileSourceHelper.getValues().size()));
         testApiSinkServer.check(fileSourceHelper
                 .getValues()
@@ -97,7 +99,7 @@ class ApiServerAutoConfigTest {
                 .findServerBean(TestApiSink.class);
         testApiSinkServer.reset();
         apiEngineFromJsonSource.run();
-        await().atMost(1, TimeUnit.SECONDS).until(
+        await().atMost(API_TIMEOUT_MS, TimeUnit.MILLISECONDS).until(
                 testApiSinkServer.processed(jsonFileSourceHelper.getValues().size()));
         testApiSinkServer.check(jsonFileSourceHelper
                 .getValues()
@@ -115,7 +117,7 @@ class ApiServerAutoConfigTest {
                 .findServerBean(TestApiSink.class);
         testApiSinkServer.reset();
         apiEngineFromJsonSourceWithMultiplyArguments.run();
-        await().atMost(1, TimeUnit.SECONDS).until(
+        await().atMost(API_TIMEOUT_MS, TimeUnit.MILLISECONDS).until(
                 testApiSinkServer.processed(jsonFileSourceHelper.getValues().size()));
         testApiSinkServer.check(jsonFileSourceHelper
                 .getValues()
@@ -131,7 +133,7 @@ class ApiServerAutoConfigTest {
                 .findServerBean(TestApiSink.class);
         testApiSinkServer.reset();
         apiEngineFromSourceWithMultiplyApi.run();
-        await().atMost(1, TimeUnit.SECONDS).until(
+        await().atMost(API_TIMEOUT_MS, TimeUnit.MILLISECONDS).until(
                 testApiSinkServer.processed(customJsonFileSourceHelper.getValues().size()));
         testApiSinkServer.check(customJsonFileSourceHelper
                 .getValues()

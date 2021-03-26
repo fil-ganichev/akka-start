@@ -7,6 +7,7 @@ import akka.kafka.ConsumerSettings;
 import akka.stream.javadsl.Flow;
 
 import java.util.Set;
+import java.util.concurrent.CompletionStage;
 
 public interface KafkaSourceRunner {
 
@@ -16,5 +17,5 @@ public interface KafkaSourceRunner {
              CommitterSettings committerSettings,
              Set<String> topics);
 
-    void shutDown();
+    <T> CompletionStage<T> shutDown();
 }

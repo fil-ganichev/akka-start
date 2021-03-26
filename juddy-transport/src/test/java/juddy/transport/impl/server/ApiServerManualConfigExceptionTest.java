@@ -16,6 +16,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static juddy.transport.common.Constants.ABSOLUTE_MINIMAL_TIMEOUT_MS;
+import static juddy.transport.common.Constants.RPC_SYNC_TIMEOUT_MS;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -47,9 +49,9 @@ class ApiServerManualConfigExceptionTest {
         testApiSinkServer.reset();
         when(testApiPhaseTwo.size(anyList())).thenThrow(new RuntimeException("Test"));
         List<String> cities = testApiPhaseOne.split("Москва, Минск, Киев, Таллин, Рига, Кишинев")
-                .get(500, TimeUnit.MILLISECONDS);
+                .get(RPC_SYNC_TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertThrows(ConditionTimeoutException.class,
-                () -> await().atMost(500, TimeUnit.MILLISECONDS).until(() -> false));
+                () -> await().atMost(ABSOLUTE_MINIMAL_TIMEOUT_MS, TimeUnit.MILLISECONDS).until(() -> false));
         testApiSinkServer.check();
     }
 }

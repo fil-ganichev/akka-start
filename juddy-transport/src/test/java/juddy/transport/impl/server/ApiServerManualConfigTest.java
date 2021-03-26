@@ -3,10 +3,10 @@ package juddy.transport.impl.server;
 import juddy.transport.api.TestApi;
 import juddy.transport.api.TestApiPhaseOne;
 import juddy.transport.api.TestApiPhaseTwo;
-import juddy.transport.test.sink.TestApiSinkServer;
 import juddy.transport.api.engine.ApiEngine;
 import juddy.transport.config.server.ApiServerTestManualConfiguration;
 import juddy.transport.impl.test.source.FileSourceHelper;
+import juddy.transport.test.sink.TestApiSinkServer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -16,6 +16,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static juddy.transport.common.Constants.API_TIMEOUT_MS;
+import static juddy.transport.common.Constants.RPC_SYNC_TIMEOUT_MS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
@@ -41,7 +43,7 @@ class ApiServerManualConfigTest {
     void when_readFileSourceAndRunServerApi_then_ok() {
         testApiSinkServer.reset();
         apiEngineFromSource.run();
-        await().atMost(1, TimeUnit.SECONDS).until(
+        await().atMost(API_TIMEOUT_MS, TimeUnit.MILLISECONDS).until(
                 testApiSinkServer.processed(fileSourceHelper.getValues().size()));
         testApiSinkServer.check(fileSourceHelper.getValues().toArray(new String[0]));
     }
@@ -50,7 +52,7 @@ class ApiServerManualConfigTest {
     @Test
     void when_callApiServer_then_ok() throws ExecutionException, InterruptedException, TimeoutException {
         List<String> cities = testApi.split("Москва, Минск, Киев, Таллин, Рига, Кишинев")
-                .get(500, TimeUnit.MILLISECONDS);
+                .get(RPC_SYNC_TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertThat(cities).containsExactly("Москва", "Минск", "Киев", "Таллин", "Рига", "Кишинев");
     }
 
@@ -59,9 +61,8 @@ class ApiServerManualConfigTest {
     void when_callApiServerAndNextOne_then_ok() throws ExecutionException, InterruptedException, TimeoutException {
         testApiSinkServer.reset();
         List<String> cities = testApiPhaseOne.split("Москва, Минск, Киев, Таллин, Рига, Кишинев")
-                .get(500, TimeUnit.MILLISECONDS);
-        await().atMost(1, TimeUnit.SECONDS).until(
-                testApiSinkServer.processed(1));
+                .get(RPC_SYNC_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        await().atMost(API_TIMEOUT_MS, TimeUnit.MILLISECONDS).until(testApiSinkServer.processed(1));
         testApiSinkServer.check(6);
     }
 }
