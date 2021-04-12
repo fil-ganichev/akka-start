@@ -54,6 +54,10 @@ public final class ArgsWrapper {
         return new ArgsWrapper(new ArrayApiCallArguments(value));
     }
 
+    public static <T> ArgsWrapper empty(Class<T> clazz) {
+        return ArgsWrapper.of(clazz.cast(null));
+    }
+
     @SuppressWarnings("checkstyle:hiddenField")
     public ArgsWrapper withCorrelationId(String correlationId) {
         this.correlationId = correlationId;

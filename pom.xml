@@ -56,6 +56,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.0</version>
+                <configuration>
+                    <argLine>-Dspring.profiles.active=@{spring.profiles.active}</argLine>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -114,4 +117,16 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <id>kafka</id>
+            <properties>
+                <spring.profiles.active>kafka</spring.profiles.active>
+            </properties>
+        </profile>
+    </profiles>
 </project>

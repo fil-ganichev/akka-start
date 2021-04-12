@@ -1,4 +1,4 @@
-package juddy.transport.impl.net;
+package juddy.transport.impl.net.tcp;
 
 import akka.NotUsed;
 import akka.actor.ActorSystem;
@@ -17,6 +17,9 @@ import juddy.transport.impl.common.StageBase;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.CompletionStage;
+
+import static juddy.transport.impl.common.MessageConstants.INCOMING_MESSAGE;
+import static juddy.transport.impl.common.MessageConstants.OUTGOING_MESSAGE;
 
 public final class TcpServerTransportImpl extends StageBase implements ApiTransport, RunnableStage {
 
@@ -50,7 +53,7 @@ public final class TcpServerTransportImpl extends StageBase implements ApiTransp
                 .via(JsonFraming.objectScanner(Integer.MAX_VALUE))
                 .map(ByteString::utf8String)
                 .map(apiSerializer::messageFromString)
-                .log(logTitle("incoming message"))
+                .log(logTitle(INCOMING_MESSAGE))
                 .map(Message::getBase64Json)
                 .map(apiSerializer::parameterFromBase64String)
                 .via(graphProcessor)
@@ -58,7 +61,7 @@ public final class TcpServerTransportImpl extends StageBase implements ApiTransp
                 .map(apiSerializer::messageFromArgs)
                 .merge(welcome)
                 .map(apiSerializer::messageToString)
-                .log(logTitle("outgoing message"))
+                .log(logTitle(OUTGOING_MESSAGE))
                 .map(ByteString::fromString)
                 .mapError(new PFBuilder<Throwable, Throwable>()
                         .match(Exception.class, this::onError)

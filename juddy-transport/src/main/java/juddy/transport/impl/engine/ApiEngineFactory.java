@@ -4,8 +4,10 @@ import juddy.transport.impl.client.ApiClientImpl;
 import juddy.transport.impl.common.StageBase;
 import juddy.transport.impl.common.TransportMode;
 import juddy.transport.impl.error.ApiEngineException;
-import juddy.transport.impl.net.TcpClientTransportImpl;
-import juddy.transport.impl.net.TcpServerTransportImpl;
+import juddy.transport.impl.kafka.producer.PartitionGenerator;
+import juddy.transport.impl.net.kafka.KafkaClientTransportImpl;
+import juddy.transport.impl.net.tcp.TcpClientTransportImpl;
+import juddy.transport.impl.net.tcp.TcpServerTransportImpl;
 import juddy.transport.impl.server.ApiProxiedServerImpl;
 import juddy.transport.impl.server.ApiServerBase;
 import juddy.transport.impl.server.ApiServerImpl;
@@ -85,6 +87,32 @@ public class ApiEngineFactory implements ApplicationContextAware {
             beanFactory.registerSingleton(generateBeanName(proxyInstance.getClass()), proxyInstance);
         });
         return apiClientImpl;
+    }
+
+    public KafkaClientTransportImpl kafkaClientTransport(Map<String, String> producerProperties,
+                                                         Map<String, String> consumerProperties,
+                                                         String transportId,
+                                                         TransportMode transportMode,
+                                                         PartitionGenerator partitionGenerator) {
+        KafkaClientTransportImpl kafkaClientTransport = KafkaClientTransportImpl.of(producerProperties,
+                consumerProperties,
+                transportId,
+                transportMode,
+                partitionGenerator);
+        registerStageBean(kafkaClientTransport);
+        return kafkaClientTransport;
+    }
+
+    public KafkaClientTransportImpl kafkaClientTransport(Map<String, String> producerProperties,
+                                                         Map<String, String> consumerProperties,
+                                                         String transportId,
+                                                         TransportMode transportMode) {
+        KafkaClientTransportImpl kafkaClientTransport = KafkaClientTransportImpl.of(producerProperties,
+                consumerProperties,
+                transportId,
+                transportMode);
+        registerStageBean(kafkaClientTransport);
+        return kafkaClientTransport;
     }
 
     private <T> T registerBean(Class<T> clazz) {

@@ -12,8 +12,7 @@ import juddy.transport.impl.common.*;
 import juddy.transport.impl.context.ApiEngineContextProvider;
 import juddy.transport.impl.error.ApiEngineException;
 import juddy.transport.impl.error.ErrorProcessor;
-import juddy.transport.impl.net.TcpClientTransportImpl;
-import juddy.transport.impl.net.TcpServerTransportImpl;
+import juddy.transport.impl.net.tcp.TcpServerTransportImpl;
 import juddy.transport.impl.server.ApiServerImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -87,13 +86,13 @@ public final class ApiEngineImpl implements ApiEngine {
         throw new ApiEngineException();
     }
 
-    public ApiEngineImpl connect(TcpClientTransportImpl tcpClientTransport) {
+    public ApiEngineImpl connect(StageBaseWithCallProcessor clientTransport) {
         ApiCallProcessor apiCallProcessor = findClientApiCallProcessor();
-        if (apiCallProcessor == null && tcpClientTransport.getTransportMode() == TransportMode.API_CALL) {
+        if (apiCallProcessor == null && clientTransport.getTransportMode() == TransportMode.API_CALL) {
             throw new ApiEngineException();
         }
-        tcpClientTransport.withApiCallProcessor(apiCallProcessor);
-        return connectStage(tcpClientTransport);
+        clientTransport.withApiCallProcessor(apiCallProcessor);
+        return connectStage(clientTransport);
     }
 
     protected Exception onError(Exception e) throws Exception {

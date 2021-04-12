@@ -7,16 +7,20 @@ import juddy.transport.impl.engine.ApiEngineImpl;
 import juddy.transport.impl.server.ApiServerImpl;
 import juddy.transport.impl.source.kafka.KafkaSource;
 import juddy.transport.impl.source.kafka.runner.RecoverableKafkaSourceRunner;
+import juddy.transport.impl.utils.yaml.YamlPropertySourceFactory;
 import juddy.transport.test.sink.TestApiMock;
 import juddy.transport.test.sink.TestApiMockFactory;
 import juddy.transport.test.sink.TestApiSink;
 import juddy.transport.test.sink.TestApiSinkServer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.PropertySource;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -27,9 +31,13 @@ import static org.mockito.Mockito.spy;
 
 @Configuration
 @Import({StartConfiguration.class, EmbeddedKafkaConfiguration.class})
+@PropertySource(value = "classpath:kafka-properties.yml", factory = YamlPropertySourceFactory.class)
 public class KafkaSourceTestConfiguration {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    @Value("${kafka.servers}")
+    private String kafkaServers;
 
     @Bean
     public KafkaSource kafkaSource() {
@@ -127,12 +135,12 @@ public class KafkaSourceTestConfiguration {
 
     private Map<String, String> defaultConsumerProperties() {
         Map<String, String> consumerProperties = new HashMap<>();
-        consumerProperties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:3333");
+        consumerProperties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaServers);
         consumerProperties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         consumerProperties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-                "org.apache.kafka.common.serialization.StringDeserializer");
+                StringDeserializer.class.getName());
         consumerProperties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                "org.apache.kafka.common.serialization.StringDeserializer");
+                StringDeserializer.class.getName());
         consumerProperties.put(ConsumerConfig.GROUP_ID_CONFIG, "test");
         consumerProperties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
         return consumerProperties;

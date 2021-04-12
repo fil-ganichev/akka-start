@@ -1,6 +1,7 @@
 package juddy.transport.impl.kafka;
 
 import juddy.transport.api.engine.ApiEngine;
+import juddy.transport.config.kafka.EmbeddedKafkaHolder;
 import juddy.transport.config.kafka.KafkaSourceTestConfiguration;
 import juddy.transport.impl.engine.ApiEngineImpl;
 import juddy.transport.impl.source.kafka.KafkaSource;
@@ -13,8 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.test.EmbeddedKafkaBroker;
-import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.test.context.junit.jupiter.EnabledIf;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.util.Arrays;
@@ -43,15 +43,9 @@ import static org.mockito.Mockito.doThrow;
  * чтобы гарантировать commit последних считанных записей
  * 6.Повторяем шаги 1-5
  */
+@EnabledIf(expression = "#{environment['spring.profiles.active'] == 'kafka'}")
 @SuppressWarnings("checkstyle:methodName")
 @SpringJUnitConfig(KafkaSourceTestConfiguration.class)
-@EmbeddedKafka(
-        partitions = 1,
-        controlledShutdown = true,
-        brokerProperties = {
-                "listeners=PLAINTEXT://localhost:3333",
-                "port=3333"
-        })
 class KafkaSourceTest {
 
     private static final long RECOVERABLE_KAFKA_SOURCE_TIMEOUT_MS = 30000;
@@ -79,7 +73,7 @@ class KafkaSourceTest {
     @Autowired
     private KafkaSource autoCommitKafkaSource;
     @Autowired
-    private EmbeddedKafkaBroker kafkaEmbedded;
+    private EmbeddedKafkaHolder kafkaEmbedded;
 
     @AfterEach
     void clear() {
@@ -92,7 +86,7 @@ class KafkaSourceTest {
      * Кидаем в топик 3 записи и читаем их
      */
     @Test
-    protected void when_readKafkaSource_then_ok() throws ExecutionException, InterruptedException {
+    void when_readKafkaSource_then_ok() throws ExecutionException, InterruptedException {
         try {
             TestApiSinkServer testApiSinkServer = (TestApiSinkServer) apiEngineFromKafkaSource
                     .findServerBean(TestApiSink.class);
@@ -118,7 +112,7 @@ class KafkaSourceTest {
      * а остальные 3 записи считываются, так как коммит выполнен был только для 1-й записи
      */
     @Test
-    protected void when_processingException_then_rollback() throws ExecutionException, InterruptedException {
+    void when_processingException_then_rollback() throws ExecutionException, InterruptedException {
         try {
             // Имитируем Exception в TestApiSink, при получении 2-го элемента
             doThrow(new RuntimeException("Error while processing string"))
@@ -162,7 +156,7 @@ class KafkaSourceTest {
      * Проверяем, что при повторном запуске потока ни одной записи не считано
      */
     @Test
-    protected void when_processingWithoutException_then_allItemsCommited()
+    void when_processingWithoutException_then_allItemsCommited()
             throws ExecutionException, InterruptedException {
         try {
             // Кидаем записи в топик
@@ -204,7 +198,7 @@ class KafkaSourceTest {
      * Проверяем, что при повторном запуске потока ни одной записи не считано
      */
     @Test
-    protected void when_processingWithAutoCommit_then_allItemsCommited()
+    void when_processingWithAutoCommit_then_allItemsCommited()
             throws ExecutionException, InterruptedException {
         try {
             // Кидаем записи в топик
@@ -245,7 +239,7 @@ class KafkaSourceTest {
      * Опция max-batch-size=1 не имеет значения, так как commit происходит автоматически, а не через Commiter
      */
     @Test
-    protected void when_processingExceptionWithAutoCommit_then_allItemsCommited()
+    void when_processingExceptionWithAutoCommit_then_allItemsCommited()
             throws ExecutionException, InterruptedException {
         try {
             // Имитируем Exception на 2-м элементе потока
@@ -293,7 +287,7 @@ class KafkaSourceTest {
      * В случае KafkaSource с опцией восстановления потока обязательно вызывать shutdown() для гарантии commit-а!
      */
     @Test
-    protected void when_recoverableKafkaSource_then_itRecover()
+    void when_recoverableKafkaSource_then_itRecover()
             throws ExecutionException, InterruptedException {
         try {
             // Имитируем Exception так, что дважды поток прервется, в а 3-й раз ошибки не будет

@@ -1,0 +1,6 @@
+kafka:
+  servers: "localhost:3333"
+  listeners: "PLAINTEXT://localhost:3333"
+  log:
+    dirs: "./kafka-logs/"
+  port: 3333

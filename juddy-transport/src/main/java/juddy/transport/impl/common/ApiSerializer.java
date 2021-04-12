@@ -168,11 +168,11 @@ public class ApiSerializer {
                             ? null
                             : argsWrapper.getCallInfo().getApiClass())
                     .methodName(argsWrapper.getCallInfo() == null
-                            ? null :
-                            argsWrapper.getCallInfo().getApiMethod().getName())
+                            ? null
+                            : argsWrapper.getCallInfo().getApiMethod().getName())
                     .parameterTypes(argsWrapper.getCallInfo() == null
-                            ? null :
-                            argsWrapper.getCallInfo().getApiMethod().getParameterTypes())
+                            ? null
+                            : argsWrapper.getCallInfo().getApiMethod().getParameterTypes())
                     .build();
         }
 

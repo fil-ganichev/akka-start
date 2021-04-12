@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
+import static juddy.transport.impl.common.MessageConstants.API_ENGINE_CONTEXT_NOT_AVAILABLE;
+
 public abstract class StageBase implements Stage, InitializingBean {
 
     @Getter(AccessLevel.PROTECTED)
@@ -82,9 +84,7 @@ public abstract class StageBase implements Stage, InitializingBean {
 
     protected ApiEngineContext getApiEngineContext() {
         if (apiEngineContextProvider == null) {
-            throw new ApiEngineException("ApiEngineContext is not available. " +
-                    "Perhaps the instance is not a Spring bean " +
-                    "or the bean is not initialized");
+            throw new ApiEngineException(API_ENGINE_CONTEXT_NOT_AVAILABLE);
         }
         return apiEngineContextProvider.getApiEngineContext();
     }

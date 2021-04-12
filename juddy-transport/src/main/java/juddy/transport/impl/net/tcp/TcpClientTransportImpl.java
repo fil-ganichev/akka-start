@@ -1,4 +1,4 @@
-package juddy.transport.impl.net;
+package juddy.transport.impl.net.tcp;
 
 import akka.NotUsed;
 import akka.japi.pf.PFBuilder;
@@ -16,7 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.CompletionStage;
 
-public class TcpClientTransportImpl extends StageBase implements ApiTransport, NewSource {
+import static juddy.transport.impl.common.MessageConstants.INCOMING_MESSAGE;
+import static juddy.transport.impl.common.MessageConstants.OUTGOING_MESSAGE;
+
+public class TcpClientTransportImpl extends StageBaseWithCallProcessor implements ApiTransport, NewSource {
 
     @Getter
     private final String host;
@@ -73,7 +76,7 @@ public class TcpClientTransportImpl extends StageBase implements ApiTransport, N
                         .via(JsonFraming.objectScanner(Integer.MAX_VALUE))
                         .map(ByteString::utf8String)
                         .map(apiSerializer::messageFromString)
-                        .log(logTitle("incoming message"))
+                        .log(logTitle(INCOMING_MESSAGE))
                         .filter(message -> message.getMessageType() == Message.MessageType.REQUEST)
                         .map(message -> {
                             ArgsWrapper argsWrapper = apiSerializer.parameterFromBase64String(
@@ -90,7 +93,7 @@ public class TcpClientTransportImpl extends StageBase implements ApiTransport, N
                 .map(this::next)
                 .map(apiSerializer::messageFromArgs)
                 .map(apiSerializer::messageToString)
-                .log(logTitle("outgoing message"))
+                .log(logTitle(OUTGOING_MESSAGE))
                 .map(ByteString::fromString)
                 .via(connection)
                 .via(repl)
@@ -101,6 +104,7 @@ public class TcpClientTransportImpl extends StageBase implements ApiTransport, N
     }
 
     @SuppressWarnings("checkstyle:hiddenField")
+    @Override
     public TcpClientTransportImpl withApiCallProcessor(ApiCallProcessor apiCallProcessor) {
         this.apiCallProcessor = apiCallProcessor;
         return this;
