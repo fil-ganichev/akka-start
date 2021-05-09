@@ -28,16 +28,16 @@ import java.util.Map;
 
 import static juddy.transport.impl.common.MessageConstants.INCOMING_MESSAGE;
 import static juddy.transport.impl.common.MessageConstants.OUTGOING_MESSAGE;
+import static juddy.transport.impl.net.kafka.KafkaConstants.TRANSPORT_REQUEST_TOPIC_SUFFIX;
+import static juddy.transport.impl.net.kafka.KafkaConstants.TRANSPORT_RESPONSE_TOPIC_SUFFIX;
 
 public class KafkaClientTransportImpl extends StageBaseWithCallProcessor implements ApiTransport, NewSource {
-
-    private static final String TOPIC_SUFFIX = "_TOPIC";
 
     private final Map<String, String> producerProperties;
     private final Map<String, String> consumerProperties;
     private final PartitionGenerator partitionGenerator;
-    private final String transportId;
-    private final String topicName;
+    private final String requestTopicName;
+    private final String responseTopicName;
     @Getter
     private final TransportMode transportMode;
 
@@ -57,8 +57,8 @@ public class KafkaClientTransportImpl extends StageBaseWithCallProcessor impleme
                                        @NonNull PartitionGenerator partitionGenerator) {
         this.producerProperties = producerProperties;
         this.consumerProperties = consumerProperties;
-        this.transportId = transportId;
-        this.topicName = transportId.concat(TOPIC_SUFFIX);
+        this.requestTopicName = transportId.concat(TRANSPORT_REQUEST_TOPIC_SUFFIX);
+        this.responseTopicName = transportId.concat(TRANSPORT_RESPONSE_TOPIC_SUFFIX);
         if (transportMode != TransportMode.API_CALL && transportMode != TransportMode.RESULT) {
             throw new KafkaTransportException(String.format("Invalid TransportMode %s", transportMode));
         }
@@ -114,7 +114,7 @@ public class KafkaClientTransportImpl extends StageBaseWithCallProcessor impleme
 
         ConsumerSource consumerSource = consumerFactory.createPlainConsumerSource(
                 consumerSettings.getConsumerSettings(),
-                Collections.singleton(topicName));
+                Collections.singleton(responseTopicName));
 
         return Flow.of(ArgsWrapper.class)
                 .map(this::next)
@@ -136,8 +136,8 @@ public class KafkaClientTransportImpl extends StageBaseWithCallProcessor impleme
     private ProducerMessage.Envelope<String, Message, NotUsed> toProducerMessage(Message message) {
 
         ProducerMessage.Envelope<String, Message, NotUsed> producerMessage =
-                ProducerMessage.single(new ProducerRecord<>(topicName,
-                        partitionGenerator.partition(topicName, message.getCorrelationId(), message),
+                ProducerMessage.single(new ProducerRecord<>(requestTopicName,
+                        partitionGenerator.partition(requestTopicName, message.getCorrelationId(), message),
                         message.getCorrelationId(), message));
         return producerMessage;
     }

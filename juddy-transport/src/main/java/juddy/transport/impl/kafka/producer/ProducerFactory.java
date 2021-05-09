@@ -1,10 +1,14 @@
 package juddy.transport.impl.kafka.producer;
 
+import akka.Done;
 import akka.NotUsed;
+import akka.kafka.ConsumerMessage;
 import akka.kafka.ProducerMessage;
 import akka.kafka.ProducerSettings;
 import akka.kafka.javadsl.Producer;
+import akka.kafka.javadsl.Transactional;
 import akka.stream.javadsl.Flow;
+import akka.stream.javadsl.Sink;
 import com.typesafe.config.Config;
 import juddy.transport.impl.context.ApiEngineContext;
 import juddy.transport.impl.context.ApiEngineContextProvider;
@@ -14,6 +18,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
+import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
 import static juddy.transport.impl.common.MessageConstants.API_ENGINE_CONTEXT_NOT_AVAILABLE;
@@ -45,6 +50,13 @@ public class ProducerFactory {
         return Flow.<T>create()
                 .map(dataConverter::apply)
                 .via(Producer.flexiFlow(producerSettings));
+    }
+
+    public <T, R, IN extends
+            ProducerMessage.Envelope<T, R, ConsumerMessage.PartitionOffset>> Sink<IN,
+            CompletionStage<Done>> transactionalSink(ProducerSettings<T, R> settings,
+                                                     String transactionalId) {
+        return Transactional.sink(settings, transactionalId);
     }
 
     private ApiEngineContext getApiEngineContext() {

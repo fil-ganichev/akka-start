@@ -7,6 +7,7 @@ import akka.kafka.ConsumerMessage;
 import akka.kafka.ConsumerSettings;
 import akka.kafka.Subscriptions;
 import akka.kafka.javadsl.Consumer;
+import akka.kafka.javadsl.Transactional;
 import akka.stream.javadsl.Flow;
 import akka.stream.javadsl.Source;
 import com.typesafe.config.Config;
@@ -88,6 +89,11 @@ public class ConsumerFactory {
                 Subscriptions.topics(topics));
     }
 
+    public <T> Source<ConsumerMessage.TransactionalMessage<String, T>, Consumer.Control> createTransactionalConsumer(
+            ConsumerSettings<String, T> consumerSettings, Set<String> topics) {
+        return Transactional.source(consumerSettings, Subscriptions.topics(topics));
+    }
+
     public <T, R> ConsumerSource createPlainConsumerSource(ConsumerSettings<String, T> consumerSettings,
                                                            Set<String> topics,
                                                            Function<ConsumerRecord<String, T>, R> dataConverter) {
@@ -135,6 +141,30 @@ public class ConsumerFactory {
         return createCommitableConsumerSource(consumerSettings, topics, this::argsWrapperFrom);
     }
 
+    public <T, R> ConsumerSource createTransactionalConsumerSource(
+            ConsumerSettings<String, T> consumerSettings,
+            Set<String> topics,
+            Function<ConsumerMessage.TransactionalMessage<String, T>, R> dataConverter) {
+
+        AtomicReference<Consumer.Control> sourceControl = new AtomicReference<>();
+
+        Flow<R, R, NotUsed> source = Flow.<R>create()
+                .merge(createTransactionalConsumer(consumerSettings, topics)
+                        .mapMaterializedValue(
+                                c -> {
+                                    sourceControl.set(c);
+                                    return c;
+                                })
+                        .map(dataConverter::apply));
+
+        return new DefaultConsumerSource(source, sourceControl);
+    }
+
+    public ConsumerSource createTransactionalConsumerSource(ConsumerSettings<String, Message> consumerSettings,
+                                                            Set<String> topics) {
+        return createTransactionalConsumerSource(consumerSettings, topics, this::argsWrapperFrom);
+    }
+
     private ArgsWrapper argsWrapperFrom(
             ConsumerMessage.CommittableMessage<String, Message> committableMessage) {
         try {
@@ -148,6 +178,16 @@ public class ConsumerFactory {
     private <T> ArgsWrapper argsWrapperFrom(ConsumerRecord<String, Message> consumerRecord) {
         try {
             return apiSerializer.parameterFromBase64String(consumerRecord.value().getBase64Json());
+        } catch (NoSuchMethodException e) {
+            throw new ApiCallDeserializationException(e);
+        }
+    }
+
+    private ArgsWrapper argsWrapperFrom(
+            ConsumerMessage.TransactionalMessage<String, Message> transactionalMessage) {
+        try {
+            return apiSerializer.parameterFromBase64String(transactionalMessage.record().value().getBase64Json())
+                    .withAdditional(transactionalMessage);
         } catch (NoSuchMethodException e) {
             throw new ApiCallDeserializationException(e);
         }

@@ -106,7 +106,7 @@ class ApiServerAutoConfigTest {
                 .stream()
                 .map(this::getFio)
                 .collect(Collectors.toList())
-                .toArray(new String[jsonFileSourceHelper.getValues().size()]));
+                .toArray(new String[0]));
     }
 
     // Получаем строки, преобразуем в json-объект, далее  вызов единственного метода API
@@ -124,7 +124,7 @@ class ApiServerAutoConfigTest {
                 .stream()
                 .map(this::getShortFio)
                 .collect(Collectors.toList())
-                .toArray(new String[jsonFileSourceHelper.getValues().size()]));
+                .toArray(new String[0]));
     }
 
     @Test
@@ -140,7 +140,7 @@ class ApiServerAutoConfigTest {
                 .stream()
                 .map(this::getFio)
                 .collect(Collectors.toList())
-                .toArray(new String[customJsonFileSourceHelper.getValues().size()]));
+                .toArray(new String[0]));
     }
 
     private String getFio(TestApiPerson.Person person) {

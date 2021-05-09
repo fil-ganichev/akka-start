@@ -6,6 +6,7 @@ import juddy.transport.impl.common.TransportMode;
 import juddy.transport.impl.error.ApiEngineException;
 import juddy.transport.impl.kafka.producer.PartitionGenerator;
 import juddy.transport.impl.net.kafka.KafkaClientTransportImpl;
+import juddy.transport.impl.net.kafka.KafkaServerTransportImpl;
 import juddy.transport.impl.net.tcp.TcpClientTransportImpl;
 import juddy.transport.impl.net.tcp.TcpServerTransportImpl;
 import juddy.transport.impl.server.ApiProxiedServerImpl;
@@ -113,6 +114,28 @@ public class ApiEngineFactory implements ApplicationContextAware {
                 transportMode);
         registerStageBean(kafkaClientTransport);
         return kafkaClientTransport;
+    }
+
+    public KafkaServerTransportImpl kafkaServerTransport(Map<String, String> producerProperties,
+                                                         Map<String, String> consumerProperties,
+                                                         String transportId,
+                                                         PartitionGenerator partitionGenerator) {
+        KafkaServerTransportImpl kafkaServerTransport = KafkaServerTransportImpl.of(producerProperties,
+                consumerProperties,
+                transportId,
+                partitionGenerator);
+        registerStageBean(kafkaServerTransport);
+        return kafkaServerTransport;
+    }
+
+    public KafkaServerTransportImpl kafkaServerTransport(Map<String, String> producerProperties,
+                                                         Map<String, String> consumerProperties,
+                                                         String transportId) {
+        KafkaServerTransportImpl kafkaServerTransport = KafkaServerTransportImpl.of(producerProperties,
+                consumerProperties,
+                transportId);
+        registerStageBean(kafkaServerTransport);
+        return kafkaServerTransport;
     }
 
     private <T> T registerBean(Class<T> clazz) {
